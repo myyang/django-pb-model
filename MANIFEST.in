@@ -1,0 +1,4 @@
+include LICENSE
+include README.rst
+recursive-include django_pb/static *
+recursive-include django_pb/templates *
