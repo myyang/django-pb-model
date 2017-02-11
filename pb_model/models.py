@@ -9,27 +9,31 @@ LOGGER = logging.getLogger(__name__)
 
 class ProtoBufMixin(object):
     """This is mixin for model.Model.
-    By setting attribute ``pb_model`` and ``pb_field_map``
+    By setting attribute ``pb_model``, you can specify target ProtoBuf Message
+    to handle django model.
+
+    By settings attribute ``pb_2_dj_field_map``, you can mapping field from
+    ProtoBuf to Django to handle schema migrations and message field chnages
     """
 
     pb_model = None
     pb_2_dj_field_map = {}    # pb field in keys, dj field in value
+    """{ProtoBuf-field-name: Django-field-name} key-value pair mapping to handle
+    schema migration or any model changes.
+    """
 
     def to_pb(self):
-        """This is
-        :returns: TODO
-
+        """Convert django model to protobuf instance by pre-defined name
+        :returns: ProtoBuf instance
         """
-        pass
         _pb_obj = self.pb_model()
         _dj_field_map = {f.name: f for f in self._meta.fields}
         for _f in _pb_obj.DESCRIPTOR.fields:
             LOGGER.debug("Handling field: {}".format(_f.name))
             _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
             if _dj_f_name not in _dj_field_map:
-                LOGGER.debug("No such django field: {}".format(_f.name))
+                LOGGER.warning("No such django field: {}".format(_f.name))
                 continue
-
             try:
                 _dj_f_value, _dj_f_type = getattr(self, _dj_f_name), _dj_field_map[_dj_f_name]
                 if _dj_f_type.is_relation:
@@ -51,6 +55,9 @@ class ProtoBufMixin(object):
         return _pb_obj
 
     def from_pb(self, _pb_obj):
+        """Convert given protobuf obj to mixin Django model
+        :returns: Django model instance
+        """
         _dj_field_map = {f.name: f for f in self._meta.fields}
         LOGGER.debug("ListFields() return fields which contains value only")
         for _f, _v in _pb_obj.ListFields():
