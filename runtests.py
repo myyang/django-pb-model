@@ -27,7 +27,7 @@ settings.configure(
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'django_pb',
+        'pb_model',
     ],
 )
 
@@ -36,6 +36,6 @@ apps.populate(settings.INSTALLED_APPS)
 from django.test.utils import get_runner
 
 tr = get_runner(settings)()
-failures = tr.run_tests(['django_pb', ])
+failures = tr.run_tests(['pb_model', ])
 if failures:
     sys.exit(bool(failures))

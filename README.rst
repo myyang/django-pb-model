@@ -14,7 +14,7 @@ Install
 
     INSTALLED_APPS = [
         ....,
-        django_pb,
+        pb_model,
         ...
     ]
 
@@ -52,7 +52,7 @@ Now you can interact with your protobuf model, add `ProtoBufMixin` to your model
 .. code:: python
 
     from django.db import models
-    from django_pb.models import ProtoBufMixin
+    from pb_model.models import ProtoBufMixin
     from . import account_pb2
 
     class Account(ProtoBufMixin, models.Model):

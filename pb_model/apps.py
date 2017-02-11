@@ -5,4 +5,4 @@ from django.apps import AppConfig  # pragma: no cover
 
 
 class DjangoPBConfig(AppConfig):  # pragma: no cover
-    name = 'django_pb'  # pragma: no cover
+    name = 'pb_model'  # pragma: no cover

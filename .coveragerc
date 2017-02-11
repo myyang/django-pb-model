@@ -1,6 +1,6 @@
 # coveragerc ref: http://coverage.readthedocs.io/
 [run]
-source = django_pb/
+source = pb_model/
 
 [report]
 show_missing = true
