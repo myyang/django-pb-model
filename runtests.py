@@ -28,6 +28,7 @@ settings.configure(
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'pb_model',
+        'pb_model.tests',
     ],
 )
 

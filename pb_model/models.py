@@ -27,7 +27,7 @@ class ProtoBufMixin(object):
         :returns: ProtoBuf instance
         """
         _pb_obj = self.pb_model()
-        _dj_field_map = {f.name: f for f in self._meta.fields}
+        _dj_field_map = {f.name: f for f in self._meta.get_fields()}
         for _f in _pb_obj.DESCRIPTOR.fields:
             LOGGER.debug("Handling field: {}".format(_f.name))
             _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
@@ -39,7 +39,8 @@ class ProtoBufMixin(object):
                 if _dj_f_type.is_relation:
                     LOGGER.debug("Relation field, recursivly handling")
                     if _dj_f_type.many_to_many:
-                        getattr(_pb_obj, _f.name).add(_dj_f_value.to_pb())
+                        getattr(_pb_obj, _f.name).extend(
+                            [_m2m.to_pb() for _m2m in _dj_f_value.all()])
                     else:
                         getattr(_pb_obj, _f.name).CopyFrom(_dj_f_value.to_pb())
                 else:
@@ -58,7 +59,7 @@ class ProtoBufMixin(object):
         """Convert given protobuf obj to mixin Django model
         :returns: Django model instance
         """
-        _dj_field_map = {f.name: f for f in self._meta.fields}
+        _dj_field_map = {f.name: f for f in self._meta.get_fields()}
         LOGGER.debug("ListFields() return fields which contains value only")
         for _f, _v in _pb_obj.ListFields():
             LOGGER.debug("Handling field: {}".format(_f.name))

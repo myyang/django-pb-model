@@ -14,6 +14,12 @@ class Relation(ProtoBufMixin, models.Model):
     num = models.IntegerField(default=0)
 
 
+class M2MRelation(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.M2MRelation
+
+    num = models.IntegerField(default=0)
+
+
 class Main(ProtoBufMixin, models.Model):
     pb_model = models_pb2.Main
 
@@ -27,4 +33,4 @@ class Main(ProtoBufMixin, models.Model):
     choices_field = models.IntegerField(default=OPT0, choices=OPTS)
 
     fk_field = models.ForeignKey(Relation)
-    m2m_field = models.ManyToManyField(Relation)
+    m2m_field = models.ManyToManyField(M2MRelation)

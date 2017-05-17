@@ -7,6 +7,11 @@ message Relation {
 
 }
 
+message M2MRelation {
+    int32 id = 1;
+    int32 num = 2;
+}
+
 // Main model for testing
 message Main {
     int32 id = 1;
@@ -22,5 +27,6 @@ message Main {
     Options choices_field = 5;
 
     Relation fk_field = 6;
-    repeated Relation m2m_field = 7;
+    repeated M2MRelation m2m_field = 7;
+    bool bool_field=8;
 }
