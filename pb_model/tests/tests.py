@@ -52,3 +52,11 @@ class ProtoBufConvertingTest(TestCase):
                          msg="{}(src) != {}(target)".format(main_item.fk_field.id, main_item2.fk_field.id))
         self.assertEqual(main_item.fk_field.num, main_item2.fk_field.num,
                          msg="{}(src) != {}(target)".format(main_item.fk_field.num, main_item2.fk_field.num))
+
+        self.assertListEqual(
+            list(main_item.m2m_field.order_by('id').values_list('id', flat=True)),
+            list(main_item2.m2m_field.order_by('id').values_list('id', flat=True)),
+            msg="{}(src) != {}(target)".format(
+                main_item.m2m_field.order_by('id').values_list('id', flat=True),
+                main_item2.m2m_field.order_by('id').values_list('id', flat=True))
+        )
