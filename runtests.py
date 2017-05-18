@@ -30,6 +30,7 @@ settings.configure(
         'pb_model',
         'pb_model.tests',
     ],
+    USE_TZ = True,
 )
 
 apps.populate(settings.INSTALLED_APPS)

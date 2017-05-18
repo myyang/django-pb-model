@@ -5,14 +5,22 @@ django-pb-model
     :target: https://travis-ci.org/myyang/django-pb-model/branches
 
 
-django-pb-model provides model mixin mapping/converting protobuf message.
+Django-pb-model provides model mixin mapping/converting protobuf message.
+Currently support basic value fields and naive relation convertion.
+
+You could examine testcases_ for more details
+
+.. _testcases: https://github.com/myyang/django-pb-model/tree/master/pb_model/tests
+
+PR are always welcome :))
+
 
 Compatibility
 -------------
 
 Currnetly tested with metrics:
 
-* Python3.5.2
+* Python2.7, 3.4, 3.5, 3.6
 * Django1.8
 
 Install
@@ -22,7 +30,7 @@ Install
     
 .. code:: shell
 
-    pip install django-pb
+    pip install django-pb-model
 
 2. Add django-pb to django settings.py
 
@@ -184,6 +192,52 @@ logics such as:
         ...
 
 Also, you should write your coverting policy if m2m is not nested repeated message in `_repeated_to_m2m` method
+
+Datetime Field
+~~~~~~~~~~~~~~
+
+Datetime is a special singular value.
+
+We currently convert between `datetime.datetime` (Python) and `google.protobuf.timestamp_pb2.Timestamp` (ProboBuf),
+for example:
+
+ProtoBuf message:
+
+.. code:: protobuf
+
+    package models;
+
+    import "google/protobuf/timestamp.proto";
+
+    message WithDatetime {
+        int32 id = 1;
+        google.protobuf.Timestamp datetime_field = 2;
+    }
+
+Django Model:
+
+.. code:: python
+
+   class WithDatetime(ProtoBufMixin, models.Model):
+       pb_model = models_pb2.WithDatetime
+
+       datetime_field = models.DatetimeField(default=timezone.now())
+
+
+.. code:: python
+
+   >>> WithDatetime.objects.create().to_pb()
+   datetime_field {
+   seconds: 1495119614
+   nanos: 282705000
+   }
+
+
+Timezone
+""""""""
+
+Note that if you use `USE_TZ` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
+And coverted to default timezone in django according to settings.
 
 
 LICENSE
