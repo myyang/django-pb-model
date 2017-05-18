@@ -1,16 +1,32 @@
-django-pb
+django-pb-model
 =========================
 
-django-pb provides mixin to integrate model with protobuf message.
+.. image:: https://travis-ci.org/myyang/django-pb-model.svg
+    :target: https://travis-ci.org/myyang/django-pb-model/branches
+
+
+django-pb-model provides model mixin mapping/converting protobuf message.
+
+Compatibility
+-------------
+
+Currnetly tested with metrics:
+
+* Python3.5.2
+* Django1.8
 
 Install
 -------
 
 1. pip install
     
+.. code:: shell
+
     pip install django-pb
 
 2. Add django-pb to django settings.py
+
+.. code:: python
 
     INSTALLED_APPS = [
         ....,
@@ -19,6 +35,8 @@ Install
     ]
 
 3. Run python/django essential commands:
+
+.. code:: shell
 
     python manage.py makemigrations
     python manage.py migrate
@@ -61,6 +79,10 @@ Now you can interact with your protobuf model, add `ProtoBufMixin` to your model
         email = models.EmailField(max_length=64)
         password = models.CharField(max_length=64)
 
+        def __str__(self):
+            # For demo only, encrypt password and DO NOT expose
+            return "Username: {a.email}, passowrd: {a.password}".format(a=self)
+
 
 By above settings, you can covert between django model and protobuf easily.
 
@@ -68,15 +90,21 @@ By above settings, you can covert between django model and protobuf easily.
 
    >>> account = Account.objects.create(email='user@email.com', password='passW0rd')
    >>> account.to_pb()
-
+   email: "user@email.com"
+   passord: "passW0rd"
 
    >>> account2 = Account()
    >>> account2.from_pb(account.to_pb())
+   <Account: Username: username@mail, password: passW0rd>
    
 
+Field details
+-------------
 
-Field mapping
-~~~~~~~~~~~~~
+There are several special field types while converting, read following section for more details.
+
+Field name mapping
+~~~~~~~~~~~~~~~~~~~~~
 
 To adapt schema migration, field mapping are expected.
 
@@ -92,6 +120,70 @@ For example, the `email` field in previous session are alter to `username`, but 
 
         username = models.CharField(max_length=64)
         password = models.CharField(max_length=64)
+
+
+Many-to-Many field
+~~~~~~~~~~~~~~~~~~
+
+M2M field is a QuerySet Relation in Django. 
+By default, we assume target message field is "repeated" nested message, ex:
+
+.. code:: protobuf
+
+    message M2M {
+        int32 id = 1;
+    }
+
+    message Main {
+        int32 id = 1;
+
+        repeated M2M m2m = 2;
+    }
+
+Django model would be:
+
+.. code:: python 
+
+   class M2M(models.Model):
+       pass
+
+   class Main(models.Model):
+       
+       m2m = models.ManyToManyField(M2M)
+
+
+Django to Protobuf
+""""""""""""""""""
+
+If this is not the format you expected, overwite `_m2m_to_protobuf()` of Django model by yourself.
+
+
+Protobuf to Django
+""""""""""""""""""
+
+Same as previous section, we assume m2m field is repeated value in protobuf.
+By default, **NO** operation is performed, which means
+you may query current relation if your coverted django model instance has a valid PK.
+
+If you want to modify your database while converting on-the-fly, overwrite
+logics such as:
+
+.. code:: python
+
+    from django.db import transaction
+
+    ...
+
+    class PBCompatibleModel(ProtoBufMixin, models.Model):
+
+        def _repeated_to_m2m(self, dj_field, _pb_repeated_set):
+            with transaction.atomic():
+                for item in _pb_repeated_set:
+                    dj_field.get_or_create(pk=item.pk, defaults={....})
+
+        ...
+
+Also, you should write your coverting policy if m2m is not nested repeated message in `_repeated_to_m2m` method
 
 
 LICENSE
