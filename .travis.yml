@@ -1,0 +1,23 @@
+language: python
+python:
+  - 2.7
+  - 3.4
+  - 3.5
+
+env:
+  - DJANGO='django>=1.8,<1.9'
+  - DJANGO='django>=1.9'
+
+install:
+  - make install
+
+script:
+    make test
+
+after_success:
+  coveralls
+
+notifications:
+  email:
+    recipients:
+      - ymy1019@gmail.com

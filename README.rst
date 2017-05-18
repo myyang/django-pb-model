@@ -1,6 +1,8 @@
 django-pb-model
 =========================
 
+.. image:: https://travis-ci.org/myyang/django-pb-model.svg
+    :target: https://travis-ci.org/myyang/django-pb-model/branches
 
 
 django-pb-model provides model mixin mapping/converting protobuf message.
