@@ -1,0 +1,4 @@
+include LICENSE
+include README.rst
+recursive-include pb_model/static *
+recursive-include pb_model/templates *

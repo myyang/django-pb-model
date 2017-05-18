@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+// Relation model for testing
+message Relation {
+    int32 id = 1;
+    int32 num = 2;
+
+}
+
+message M2MRelation {
+    int32 id = 1;
+    int32 num = 2;
+}
+
+// Main model for testing
+message Main {
+    int32 id = 1;
+    string string_field = 2;
+    int32 integer_field = 3;
+    float float_field = 4;
+    enum Options {
+        OPT0 = 0;
+        OPT1 = 1;
+        OPT2 = 2;
+        OPT3 = 3;
+    }
+    Options choices_field = 5;
+
+    Relation fk_field = 6;
+    repeated M2MRelation m2m_field = 7;
+    bool bool_field=8;
+}
