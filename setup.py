@@ -16,12 +16,13 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-pb-model',
-    version='v0.1.1',
+    version='v0.1.2',
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
     long_description=README,
-    url='',
+    url='https://github.com/myyang/django-pb-model',
+    description='Protobuf mixin for Django model',
     author='myyang',
     author_email='ymy1019@gmail.com',
     install_requires=[
