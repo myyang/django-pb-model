@@ -137,7 +137,7 @@ class ProtoBufMixin(object):
         """
         if getattr(getattr(pb_obj, pb_field.name), 'FromDatetime', False):
             if settings.USE_TZ:
-                dj_field_value = timezone.make_naive(dj_field_value, timezone=timezone.UTC)
+                dj_field_value = timezone.make_naive(dj_field_value, timezone=timezone.utc)
             getattr(pb_obj, pb_field.name).FromDatetime(dj_field_value)
             return
         # FIXME: not timestamp field
@@ -230,6 +230,6 @@ class ProtoBufMixin(object):
         """
         dt = pb_value.ToDatetime()
         if settings.USE_TZ:
-            dt = timezone.make_aware(dt, timezone.utc)
+            dt = timezone.localtime(timezone.make_aware(dt, timezone.utc))
         # FIXME: not datetime field
         setattr(self, dj_field_name, dt)
