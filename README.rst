@@ -5,7 +5,15 @@ django-pb-model
     :target: https://travis-ci.org/myyang/django-pb-model/branches
 
 
-django-pb-model provides model mixin mapping/converting protobuf message.
+Django-pb-model provides model mixin mapping/converting protobuf message.
+Currently support basic value fields and naive relation convertion.
+
+You could examine testcases_ for more details
+
+.. _testcases: https://github.com/myyang/django-pb-model/tree/master/pb_model/tests
+
+PR are always welcome :))
+
 
 Compatibility
 -------------
