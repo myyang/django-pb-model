@@ -5,14 +5,22 @@ django-pb-model
     :target: https://travis-ci.org/myyang/django-pb-model/branches
 
 
-django-pb-model provides model mixin mapping/converting protobuf message.
+Django-pb-model provides model mixin mapping/converting protobuf message.
+Currently support basic value fields and naive relation convertion.
+
+You could examine testcases_ for more details
+
+.. _testcases: https://github.com/myyang/django-pb-model/tree/master/pb_model/tests
+
+PR are always welcome :))
+
 
 Compatibility
 -------------
 
 Currnetly tested with metrics:
 
-* Python3.5.2
+* Python2.7, 3.4, 3.5, 3.6
 * Django1.8
 
 Install
@@ -22,7 +30,7 @@ Install
     
 .. code:: shell
 
-    pip install django-pb
+    pip install django-pb-model
 
 2. Add django-pb to django settings.py
 
