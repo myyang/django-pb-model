@@ -6,13 +6,18 @@ django-pb-model
 
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
-Currently support basic value fields and naive relation convertion.
+Currently support basic value fields and naive relation convertion, including:
+
+* Integer, String, Float, Boolean
+* Choices field
+* Datetime
+* Foriegn Key and Many-to-Many relation
 
 You could examine testcases_ for more details
 
 .. _testcases: https://github.com/myyang/django-pb-model/tree/master/pb_model/tests
 
-PR are always welcome :))
+And PRs are always welcome :))
 
 
 Compatibility
@@ -116,18 +121,65 @@ Field name mapping
 
 To adapt schema migration, field mapping are expected.
 
-For example, the `email` field in previous session are alter to `username`, but we don't want to break the consistance of protobuf protocol. You may add `pb_2_dj_field_map` attribute to solve this problem. Such as:
+For example, the `email` field in previous session is altered to `username`, but we don't want to break the consistance of protobuf protocol. You may add `pb_2_dj_field_map` attribute to solve this problem. Such as:
 
 .. code:: python
 
     class Account(ProtoBufMixin, models.Model):
         pb_model = account_pb2.Account
         pb_2_dj_field_map = {
-            "account": "username",  # protobuf field as key and django field as value
+            "email": "username",  # protobuf field as key and django field as value
         }
 
         username = models.CharField(max_length=64)
         password = models.CharField(max_length=64)
+
+Foriegn Key
+~~~~~~~~~~~
+
+Foriegn key is a connect to another model in Django. According to this property, the foreign key could and should be converted to nested singular message in Protobuf. For example:
+
+.. code:: Protobuf
+
+   message Relation {
+       int32 id = 1;
+   }
+
+   message Main {
+       int32 id = 1;
+       Relation fk = 2;
+   }
+
+Django model:
+
+.. code:: python
+
+   class Relation(ProtoBufMixin, models.Model):
+       pb_model = models_pb2.Relation
+
+   
+   class Main(ProtoBufMixin, models.Model):
+       pb_model = models_pb2.Main
+
+       fk = models.ForiegnKey(Relation)
+
+
+With above settings, pb_model would recursivly serialize and de-serialize bewteen Django and ProtoBuf.
+
+.. code:: python
+
+   >>> m = Main.objects.create(fk=Relation.objects.create())
+   >>> m.to_pb()
+   id: 1
+   fk {
+       id: 1
+   }
+
+   >>> m2 = Main()
+   >>> m2.from_pb(m.to_pb())
+   >>> m2.fk.id
+   1
+
 
 
 Many-to-Many field
@@ -238,6 +290,8 @@ Timezone
 
 Note that if you use `USE_TZ` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
 And coverted to default timezone in django according to settings.
+
+
 
 
 LICENSE
