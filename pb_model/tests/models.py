@@ -29,7 +29,12 @@ class Main(ProtoBufMixin, models.Model):
     bool_field = models.BooleanField(default=False)
 
     OPT0, OPT1, OPT2, OPT3 = 0, 1, 2, 3
-    OPTS = [OPT0, OPT1, OPT2, OPT3]
+    OPTS = [
+        (OPT0, "option-0"),
+        (OPT1, "option-1"),
+        (OPT2, "option-2"),
+        (OPT3, "option-3"),
+    ]
     choices_field = models.IntegerField(default=OPT0, choices=OPTS)
 
     fk_field = models.ForeignKey(Relation)
