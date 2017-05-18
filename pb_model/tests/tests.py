@@ -47,6 +47,8 @@ class ProtoBufConvertingTest(TestCase):
                          msg="{}(src) != {}(target)".format(main_item.bool_field, main_item2.bool_field))
         self.assertEqual(main_item.choices_field, main_item2.choices_field,
                          msg="{}(src) != {}(target)".format(main_item.choices_field, main_item2.choices_field))
+        self.assertEqual(main_item.datetime_field, main_item2.datetime_field,
+                         msg="{}(src) != {}(target)".format(main_item.datetime_field, main_item2.datetime_field))
 
         self.assertEqual(main_item.fk_field.id, main_item2.fk_field.id,
                          msg="{}(src) != {}(target)".format(main_item.fk_field.id, main_item2.fk_field.id))

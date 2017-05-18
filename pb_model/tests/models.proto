@@ -1,4 +1,7 @@
 syntax = "proto3";
+package models;
+
+import "google/protobuf/timestamp.proto";
 
 // Relation model for testing
 message Relation {
@@ -29,4 +32,5 @@ message Main {
     Relation fk_field = 6;
     repeated M2MRelation m2m_field = 7;
     bool bool_field=8;
+    google.protobuf.Timestamp datetime_field = 9;
 }

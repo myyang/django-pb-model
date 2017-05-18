@@ -13,21 +13,22 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='models.proto',
-  package='',
+  package='models',
   syntax='proto3',
-  serialized_pb=_b('\n\x0cmodels.proto\"#\n\x08Relation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"&\n\x0bM2MRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"\xff\x01\n\x04Main\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0cstring_field\x18\x02 \x01(\t\x12\x15\n\rinteger_field\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_field\x18\x04 \x01(\x02\x12$\n\rchoices_field\x18\x05 \x01(\x0e\x32\r.Main.Options\x12\x1b\n\x08\x66k_field\x18\x06 \x01(\x0b\x32\t.Relation\x12\x1f\n\tm2m_field\x18\x07 \x03(\x0b\x32\x0c.M2MRelation\x12\x12\n\nbool_field\x18\x08 \x01(\x08\"1\n\x07Options\x12\x08\n\x04OPT0\x10\x00\x12\x08\n\x04OPT1\x10\x01\x12\x08\n\x04OPT2\x10\x02\x12\x08\n\x04OPT3\x10\x03\x62\x06proto3')
-)
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
+  serialized_pb=_b('\n\x0cmodels.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\"#\n\x08Relation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"&\n\x0bM2MRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"\xc8\x02\n\x04Main\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0cstring_field\x18\x02 \x01(\t\x12\x15\n\rinteger_field\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_field\x18\x04 \x01(\x02\x12+\n\rchoices_field\x18\x05 \x01(\x0e\x32\x14.models.Main.Options\x12\"\n\x08\x66k_field\x18\x06 \x01(\x0b\x32\x10.models.Relation\x12&\n\tm2m_field\x18\x07 \x03(\x0b\x32\x13.models.M2MRelation\x12\x12\n\nbool_field\x18\x08 \x01(\x08\x12\x32\n\x0e\x64\x61tetime_field\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"1\n\x07Options\x12\x08\n\x04OPT0\x10\x00\x12\x08\n\x04OPT1\x10\x01\x12\x08\n\x04OPT2\x10\x02\x12\x08\n\x04OPT3\x10\x03\x62\x06proto3')
+  ,
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 
 
 _MAIN_OPTIONS = _descriptor.EnumDescriptor(
   name='Options',
-  full_name='Main.Options',
+  full_name='models.Main.Options',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -50,28 +51,28 @@ _MAIN_OPTIONS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=300,
-  serialized_end=349,
+  serialized_start=414,
+  serialized_end=463,
 )
 _sym_db.RegisterEnumDescriptor(_MAIN_OPTIONS)
 
 
 _RELATION = _descriptor.Descriptor(
   name='Relation',
-  full_name='Relation',
+  full_name='models.Relation',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='Relation.id', index=0,
+      name='id', full_name='models.Relation.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='num', full_name='Relation.num', index=1,
+      name='num', full_name='models.Relation.num', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -89,27 +90,27 @@ _RELATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=16,
-  serialized_end=51,
+  serialized_start=57,
+  serialized_end=92,
 )
 
 
 _M2MRELATION = _descriptor.Descriptor(
   name='M2MRelation',
-  full_name='M2MRelation',
+  full_name='models.M2MRelation',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='M2MRelation.id', index=0,
+      name='id', full_name='models.M2MRelation.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='num', full_name='M2MRelation.num', index=1,
+      name='num', full_name='models.M2MRelation.num', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -127,71 +128,78 @@ _M2MRELATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=53,
-  serialized_end=91,
+  serialized_start=94,
+  serialized_end=132,
 )
 
 
 _MAIN = _descriptor.Descriptor(
   name='Main',
-  full_name='Main',
+  full_name='models.Main',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='Main.id', index=0,
+      name='id', full_name='models.Main.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='string_field', full_name='Main.string_field', index=1,
+      name='string_field', full_name='models.Main.string_field', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='integer_field', full_name='Main.integer_field', index=2,
+      name='integer_field', full_name='models.Main.integer_field', index=2,
       number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='float_field', full_name='Main.float_field', index=3,
+      name='float_field', full_name='models.Main.float_field', index=3,
       number=4, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='choices_field', full_name='Main.choices_field', index=4,
+      name='choices_field', full_name='models.Main.choices_field', index=4,
       number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='fk_field', full_name='Main.fk_field', index=5,
+      name='fk_field', full_name='models.Main.fk_field', index=5,
       number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='m2m_field', full_name='Main.m2m_field', index=6,
+      name='m2m_field', full_name='models.Main.m2m_field', index=6,
       number=7, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='bool_field', full_name='Main.bool_field', index=7,
+      name='bool_field', full_name='models.Main.bool_field', index=7,
       number=8, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='datetime_field', full_name='models.Main.datetime_field', index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -208,36 +216,38 @@ _MAIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=94,
-  serialized_end=349,
+  serialized_start=135,
+  serialized_end=463,
 )
 
 _MAIN.fields_by_name['choices_field'].enum_type = _MAIN_OPTIONS
 _MAIN.fields_by_name['fk_field'].message_type = _RELATION
 _MAIN.fields_by_name['m2m_field'].message_type = _M2MRELATION
+_MAIN.fields_by_name['datetime_field'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _MAIN_OPTIONS.containing_type = _MAIN
 DESCRIPTOR.message_types_by_name['Relation'] = _RELATION
 DESCRIPTOR.message_types_by_name['M2MRelation'] = _M2MRELATION
 DESCRIPTOR.message_types_by_name['Main'] = _MAIN
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Relation = _reflection.GeneratedProtocolMessageType('Relation', (_message.Message,), dict(
   DESCRIPTOR = _RELATION,
   __module__ = 'models_pb2'
-  # @@protoc_insertion_point(class_scope:Relation)
+  # @@protoc_insertion_point(class_scope:models.Relation)
   ))
 _sym_db.RegisterMessage(Relation)
 
 M2MRelation = _reflection.GeneratedProtocolMessageType('M2MRelation', (_message.Message,), dict(
   DESCRIPTOR = _M2MRELATION,
   __module__ = 'models_pb2'
-  # @@protoc_insertion_point(class_scope:M2MRelation)
+  # @@protoc_insertion_point(class_scope:models.M2MRelation)
   ))
 _sym_db.RegisterMessage(M2MRelation)
 
 Main = _reflection.GeneratedProtocolMessageType('Main', (_message.Message,), dict(
   DESCRIPTOR = _MAIN,
   __module__ = 'models_pb2'
-  # @@protoc_insertion_point(class_scope:Main)
+  # @@protoc_insertion_point(class_scope:models.Main)
   ))
 _sym_db.RegisterMessage(Main)
 
