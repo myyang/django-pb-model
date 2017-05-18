@@ -12,7 +12,7 @@ Compatibility
 
 Currnetly tested with metrics:
 
-* Python3.5.2
+* Python2.7, 3.4, 3.5, 3.6
 * Django1.8
 
 Install
@@ -22,7 +22,7 @@ Install
     
 .. code:: shell
 
-    pip install django-pb
+    pip install django-pb-model
 
 2. Add django-pb to django settings.py
 

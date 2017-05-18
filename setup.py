@@ -25,7 +25,7 @@ setup(
     author='myyang',
     author_email='ymy1019@gmail.com',
     install_requires=[
-        'django>=1.8',
+        'django>=1.8,<1.9',
         'protobuf>=3.1',
     ],
     classifiers=[
