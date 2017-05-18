@@ -67,7 +67,7 @@ class ProtoBufMixin(object):
         LOGGER.info("Coverted Protobuf object: {}".format(_pb_obj))
         return _pb_obj
 
-    def _m2m_to_protobuf(self, pb_obj, pb_field, dj_field_value):
+    def _m2m_to_protobuf(self, pb_obj, pb_field, dj_m2m_field):
         """
         This is hook function from m2m field to protobuf. By default, we assume
         target message field is "repeated" nested message, ex:
@@ -86,9 +86,15 @@ class ProtoBufMixin(object):
 
         If this is not the format you expected, overwite
         `_m2m_to_protobuf(self, pb_obj, pb_field, dj_field_value)` by yourself.
+
+        :param pb_obj: intermedia-converting Protobuf obj, which would is return value of to_pb()
+        :param pb_field: the Protobuf message field which supposed to assign after converting
+        :param dj_field_value: Django many_to_many field
+        :returns: None
+
         """
         getattr(pb_obj, pb_field.name).extend(
-            [_m2m.to_pb() for _m2m in dj_field_value.all()])
+            [_m2m.to_pb() for _m2m in dj_m2m_field.all()])
 
     def from_pb(self, _pb_obj):
         """Convert given protobuf obj to mixin Django model
@@ -136,5 +142,10 @@ class ProtoBufMixin(object):
             ...
 
         ```
+
+        :param dj_field: Django many_to_many field
+        :param pb_repeated_set: the Protobuf message field which contains data that is going to be converted
+        :returns: None
+
         """
-        pass
+        return

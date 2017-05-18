@@ -1,7 +1,9 @@
-django-pb
+django-pb-model
 =========================
 
-django-pb provides mixin to integrate model with protobuf message.
+
+
+django-pb-model provides model mixin mapping/converting protobuf message.
 
 Compatibility
 -------------
@@ -122,10 +124,6 @@ Many-to-Many field
 ~~~~~~~~~~~~~~~~~~
 
 M2M field is a QuerySet Relation in Django. 
-
-Django to Protobuf
-""""""""""""""""""
-
 By default, we assume target message field is "repeated" nested message, ex:
 
 .. code:: protobuf
@@ -140,7 +138,23 @@ By default, we assume target message field is "repeated" nested message, ex:
         repeated M2M m2m = 2;
     }
 
-If this is not the format you expected, overwite `_m2m_to_protobuf(self, pb_obj, pb_field, dj_field_value)` of Django model by yourself.
+Django model would be:
+
+.. code:: python 
+
+   class M2M(models.Model):
+       pass
+
+   class Main(models.Model):
+       
+       m2m = models.ManyToManyField(M2M)
+
+
+Django to Protobuf
+""""""""""""""""""
+
+If this is not the format you expected, overwite `_m2m_to_protobuf()` of Django model by yourself.
+
 
 Protobuf to Django
 """"""""""""""""""
@@ -167,7 +181,7 @@ logics such as:
 
         ...
 
-Also, you should write your coverting method if m2m is not nested repeated message
+Also, you should write your coverting policy if m2m is not nested repeated message in `_repeated_to_m2m` method
 
 
 LICENSE
