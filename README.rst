@@ -185,6 +185,52 @@ logics such as:
 
 Also, you should write your coverting policy if m2m is not nested repeated message in `_repeated_to_m2m` method
 
+Datetime Field
+~~~~~~~~~~~~~~
+
+Datetime is a special singular value.
+
+We currently convert between `datetime.datetime` (Python) and `google.protobuf.timestamp_pb2.Timestamp` (ProboBuf),
+for example:
+
+ProtoBuf message:
+
+.. code:: protobuf
+
+    package models;
+
+    import "google/protobuf/timestamp.proto";
+
+    message WithDatetime {
+        int32 id = 1;
+        google.protobuf.Timestamp datetime_field = 2;
+    }
+
+Django Model:
+
+.. code:: python
+
+   class WithDatetime(ProtoBufMixin, models.Model):
+       pb_model = models_pb2.WithDatetime
+
+       datetime_field = models.DatetimeField(default=timezone.now())
+
+
+.. code:: python
+
+   >>> WithDatetime.objects.create().to_pb()
+   datetime_field {
+   seconds: 1495119614
+   nanos: 282705000
+   }
+
+
+Timezone
+""""""""
+
+Note that if you use `USE_TZ` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
+And coverted to default timezone in django according to settings.
+
 
 LICENSE
 -------

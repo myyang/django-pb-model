@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.utils import timezone
 
 from pb_model.models import ProtoBufMixin
 
@@ -27,6 +28,7 @@ class Main(ProtoBufMixin, models.Model):
     integer_field = models.IntegerField()
     float_field = models.FloatField()
     bool_field = models.BooleanField(default=False)
+    datetime_field = models.DateTimeField(default=timezone.now)
 
     OPT0, OPT1, OPT2, OPT3 = 0, 1, 2, 3
     OPTS = [
