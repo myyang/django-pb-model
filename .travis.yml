@@ -6,10 +6,10 @@ python:
 
 env:
   - DJANGO='django>=1.8,<1.9'
-  - DJANGO='django>=1.9'
 
 install:
   - make install
+  - pip install $DJANGO
 
 script:
     make test
