@@ -50,14 +50,13 @@ fi
 case $1 in
     install )
         pip install -r requirements.txt
-        exit 0 ;;
+        exit $? ;;
     test )
-        coverage run runtests.py
-        coverage report -m
-        exit 0 ;;
+        coverage run runtests.py && coverage report -m
+        exit $? ;;
     clean )
         find . \( -name *.pyc -o -name __pycache__ -o -name .coverage -o -name *,cover\) -delete
-        exit 0 ;;
+        exit $? ;;
     * ) echo "Invalid command: $1\nPlease use --help/-h to review usage."
         exit 1 ;;
 esac
