@@ -41,8 +41,8 @@ class ProtoBufConvertingTest(TestCase):
                          msg="{}(src) != {}(target)".format(main_item.string_field, main_item2.string_field))
         self.assertEqual(main_item.integer_field, main_item2.integer_field,
                          msg="{}(src) != {}(target)".format(main_item.integer_field, main_item2.integer_field))
-        self.assertEqual(main_item.float_field, main_item2.float_field,
-                         msg="{}(src) != {}(target)".format(main_item.float_field, main_item2.float_field))
+        self.assertAlmostEqual(main_item.float_field, main_item2.float_field, delta=1e-6,
+                               msg="{}(src) != {}(target)".format(main_item.float_field, main_item2.float_field))
         self.assertEqual(main_item.bool_field, main_item2.bool_field,
                          msg="{}(src) != {}(target)".format(main_item.bool_field, main_item2.bool_field))
         self.assertEqual(main_item.choices_field, main_item2.choices_field,
