@@ -173,7 +173,12 @@ class ProtoBufMixin(object):
         if dj_field.many_to_many:
             self._protobuf_to_m2m(dj_field, pb_value)
             return
-        setattr(self, dj_field_name, dj_field.related.model().from_pb(pb_value))
+
+        if hasattr(dj_field, 'related_model'):
+            # django > 1.8 compatible
+            setattr(self, dj_field_name, dj_field.related_model().from_pb(pb_value))
+        else:
+            setattr(self, dj_field_name, dj_field.related.model().from_pb(pb_value))
 
     def _protobuf_to_m2m(self, dj_field, pb_repeated_set):
         """
