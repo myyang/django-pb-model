@@ -4,6 +4,9 @@ django-pb-model
 .. image:: https://travis-ci.org/myyang/django-pb-model.svg?branch=master
        :target: https://travis-ci.org/myyang/django-pb-model
 
+.. image:: https://img.shields.io/pypi/v/django-pb-model.svg
+       :target: https://pypi.python.org/pypi/django-pb-model
+
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
 Currently support basic value fields and naive relation convertion, including:
@@ -26,7 +29,7 @@ Compatibility
 Currnetly tested with metrics:
 
 * Python2.7, 3.4, 3.5, 3.6
-* Django1.8
+* Django1.8, 1,9, 1.10, 1.11
 
 Install
 -------
