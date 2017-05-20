@@ -47,8 +47,12 @@ class ProtoBufConvertingTest(TestCase):
                          msg="{}(src) != {}(target)".format(main_item.bool_field, main_item2.bool_field))
         self.assertEqual(main_item.choices_field, main_item2.choices_field,
                          msg="{}(src) != {}(target)".format(main_item.choices_field, main_item2.choices_field))
-        self.assertEqual(main_item.datetime_field, main_item2.datetime_field,
-                         msg="{}(src) != {}(target)".format(main_item.datetime_field, main_item2.datetime_field))
+
+        time_diff = main_item.datetime_field - main_item2.datetime_field
+        # convertion may affect 1 microsecond due to resolution difference
+        # between Protobuf timestamp and Python datetime
+        self.assertAlmostEqual(0, time_diff.total_seconds(), delta=1e-6,
+                               msg="{}(src) != {}(target)".format(main_item.datetime_field, main_item2.datetime_field))
 
         self.assertEqual(main_item.fk_field.id, main_item2.fk_field.id,
                          msg="{}(src) != {}(target)".format(main_item.fk_field.id, main_item2.fk_field.id))
