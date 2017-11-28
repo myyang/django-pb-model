@@ -288,6 +288,43 @@ Django Model:
    }
 
 
+Custom Fields
+~~~~~~~~~~~~~
+
+You can write your own field serializers, to convert between `django.contrib.postgres.fields.JSONField` (Python)
+and `string` (Protobuf) for example:
+
+ProtoBuf message:
+
+.. code:: protobuf
+
+    package models;
+
+    message WithJSONBlob {
+        int32 id = 1;
+        string json_blob = 2;
+    }
+
+Django Model:
+
+.. code:: python
+
+    def json_serializer(pb_obj, pb_field, dj_value):
+        setattr(pb_obj, pb_field.name, json.dumps(value))
+
+    def json_deserializer(instance, dj_field_name, pb_field, pb_value):
+        setattr(instance, dj_field_name, json.loads(pb_value))
+
+    class WithJSONField(ProtoBufMixin, models.Model):
+        pb_model = models_pb2.WithJSONBlob
+
+        pb_2_dj_field_serializers = {
+            'JSONField': (json_serializer, json_deserializer),
+        }
+
+        json_field = models.JSONField()
+
+
 Timezone
 """"""""
 

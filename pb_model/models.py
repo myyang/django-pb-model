@@ -16,6 +16,51 @@ if settings.DEBUG:
     LOGGER.setLevel(logging.DEBUG)
 
 
+def _defaultfield_serializer(pb_obj, pb_field, dj_field_value):
+    """ handling any fields conversion to protobuf
+    """
+    LOGGER.debug("Django Value field, assign proto msg field: {} = {}".format(
+        pb_field.name, dj_field_value))
+    setattr(pb_obj, pb_field.name, dj_field_value)
+
+
+def _defaultfield_deserializer(instance, dj_field_name, pb_field, pb_value):
+    """ handling any fields setting from protobuf
+    """
+    LOGGER.debug("Django Value Field, set dj field: {} = {}".format(
+        dj_field_name, pb_value))
+    setattr(instance, dj_field_name, pb_value)
+
+
+def _datetimefield_serializer(pb_obj, pb_field, dj_field_value):
+    """ handling Django DateTimeField field
+
+    :param pb_obj: protobuf message obj which is return value of to_pb()
+    :param pb_field: protobuf message field which is current processing field
+    :param dj_field_value: Currently proecessing django field value
+    :returns: None
+    """
+    if getattr(getattr(pb_obj, pb_field.name), 'FromDatetime', False):
+        if settings.USE_TZ:
+            dj_field_value = timezone.make_naive(
+                dj_field_value, timezone=timezone.utc)
+        getattr(pb_obj, pb_field.name).FromDatetime(dj_field_value)
+
+
+def _datetimefield_deserializer(instance, dj_field_name, pb_field, pb_value):
+    """handling datetime field (Timestamp) object to dj field
+
+    :param dj_field_name: Currently target django field's name
+    :param pb_value: Currently processing protobuf message value
+    :returns: None
+    """
+    dt = pb_value.ToDatetime()
+    if settings.USE_TZ:
+        dt = timezone.localtime(timezone.make_aware(dt, timezone.utc))
+    # FIXME: not datetime field
+    setattr(instance, dj_field_name, dt)
+
+
 class DjangoPBModelError(Exception):
     pass
 
@@ -30,7 +75,13 @@ class ProtoBufMixin(object):
     """
 
     pb_model = None
-    pb_2_dj_field_map = {}    # pb field in keys, dj field in value
+    pb_2_dj_field_map = {}  # pb field in keys, dj field in value
+    pb_2_dj_field_serializers = {
+    }  # dj field in key, serializer function pairs in value
+    _default_pb_2_dj_field_serializers = {
+        'DateTimeField': (_datetimefield_serializer,
+                          _datetimefield_deserializer),
+    }
     """
     {ProtoBuf-field-name: Django-field-name} key-value pair mapping to handle
     schema migration or any model changes.
@@ -49,16 +100,18 @@ class ProtoBufMixin(object):
                 LOGGER.warning("No such django field: {}".format(_f.name))
                 continue
             try:
-                _dj_f_value, _dj_f_type = getattr(self, _dj_f_name), _dj_field_map[_dj_f_name]
+                _dj_f_value, _dj_f_type = getattr(
+                    self, _dj_f_name), _dj_field_map[_dj_f_name]
                 if _dj_f_type.is_relation:
-                    self._relation_to_protobuf(_pb_obj, _f, _dj_f_type, _dj_f_value)
+                    self._relation_to_protobuf(_pb_obj, _f, _dj_f_type,
+                                               _dj_f_value)
                 else:
-                    self._value_to_protobuf(_pb_obj, _f, _dj_f_type, _dj_f_value)
+                    self._value_to_protobuf(_pb_obj, _f,
+                                            _dj_f_type.get_internal_type(),
+                                            _dj_f_value)
             except AttributeError as e:
-                LOGGER.error(
-                    "Fail to serialize field: {} for {}. Error: {}".format(
-                        _dj_f_name, self._meta.model, e)
-                )
+                LOGGER.error("Fail to serialize field: {} for {}. Error: {}".
+                             format(_dj_f_name, self._meta.model, e))
                 raise DjangoPBModelError(
                     "Can't serialize Model({})'s field: {}. Err: {}".format(
                         _dj_f_name, self._meta.model, e))
@@ -66,7 +119,8 @@ class ProtoBufMixin(object):
         LOGGER.info("Coverted Protobuf object: {}".format(_pb_obj))
         return _pb_obj
 
-    def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type, dj_field_value):
+    def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type,
+                              dj_field_value):
         """Handling relation to protobuf
 
         :param pb_obj: protobuf message obj which is return value of to_pb()
@@ -111,7 +165,29 @@ class ProtoBufMixin(object):
         getattr(pb_obj, pb_field.name).extend(
             [_m2m.to_pb() for _m2m in dj_m2m_field.all()])
 
-    def _value_to_protobuf(self, pb_obj, pb_field, dj_field_type, dj_field_value):
+    def _get_serializers(self, dj_field_type):
+        """Getting the correct serializers for a field type
+
+        :param dj_field_type: Currently processing django field type
+        :returns: Tuple containing serialization func pair
+        """
+        defaults = (_defaultfield_serializer, _defaultfield_deserializer)
+
+        serializers = self._default_pb_2_dj_field_serializers.copy()
+        serializers.update(self.pb_2_dj_field_serializers)
+
+        funcs = serializers.get(dj_field_type, defaults)
+
+        if len(funcs) != 2:
+            LOGGER.warning(
+                "Custom serializers require a pair of functions: {0} is misconfigured".
+                format(dj_field_type))
+            return defaults
+
+        return funcs
+
+    def _value_to_protobuf(self, pb_obj, pb_field, dj_field_type,
+                           dj_field_value):
         """Handling value to protobuf
 
         :param pb_obj: protobuf message obj which is return value of to_pb()
@@ -121,26 +197,8 @@ class ProtoBufMixin(object):
         :returns: None
 
         """
-        if isinstance(dj_field_value, datetime.datetime):
-            self._handling_dj_dt_field(pb_obj, pb_field, dj_field_value)
-            return
-        LOGGER.debug("Django Value field, assign proto msg field: {} = {}".format(pb_field.name, dj_field_value))
-        setattr(pb_obj, pb_field.name, dj_field_value)
-
-    def _handling_dj_dt_field(self, pb_obj, pb_field, dj_field_value):
-        """ handling Djangodatetime field
-
-        :param pb_obj: protobuf message obj which is return value of to_pb()
-        :param pb_field: protobuf message field which is current processing field
-        :param dj_field_value: Currently proecessing django field value
-        :returns: None
-        """
-        if getattr(getattr(pb_obj, pb_field.name), 'FromDatetime', False):
-            if settings.USE_TZ:
-                dj_field_value = timezone.make_naive(dj_field_value, timezone=timezone.utc)
-            getattr(pb_obj, pb_field.name).FromDatetime(dj_field_value)
-            return
-        # FIXME: not timestamp field
+        s_funcs = self._get_serializers(dj_field_type)
+        s_funcs[0](pb_obj, pb_field, dj_field_value)
 
     def from_pb(self, _pb_obj):
         """Convert given protobuf obj to mixin Django model
@@ -151,16 +209,19 @@ class ProtoBufMixin(object):
         LOGGER.debug("ListFields() return fields which contains value only")
         for _f, _v in _pb_obj.ListFields():
             _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
+            _dj_f_type = _dj_field_map[_dj_f_name]
             if _f.message_type is not None:
                 dj_field = _dj_field_map[_dj_f_name]
                 if dj_field.is_relation:
                     self._protobuf_to_relation(_dj_f_name, dj_field, _f, _v)
                     continue
-            self._protobuf_to_value(_dj_f_name, _f, _v)
+            self._protobuf_to_value(_dj_f_name,
+                                    _dj_f_type.get_internal_type(), _f, _v)
         LOGGER.info("Coveretd Django model instance: {}".format(self))
         return self
 
-    def _protobuf_to_relation(self, dj_field_name, dj_field, pb_field, pb_value):
+    def _protobuf_to_relation(self, dj_field_name, dj_field, pb_field,
+                              pb_value):
         """Handling protobuf nested message to relation key
 
         :param dj_field_name: Currently target django field's name
@@ -176,9 +237,11 @@ class ProtoBufMixin(object):
 
         if hasattr(dj_field, 'related_model'):
             # django > 1.8 compatible
-            setattr(self, dj_field_name, dj_field.related_model().from_pb(pb_value))
+            setattr(self, dj_field_name,
+                    dj_field.related_model().from_pb(pb_value))
         else:
-            setattr(self, dj_field_name, dj_field.related.model().from_pb(pb_value))
+            setattr(self, dj_field_name,
+                    dj_field.related.model().from_pb(pb_value))
 
     def _protobuf_to_m2m(self, dj_field, pb_repeated_set):
         """
@@ -212,29 +275,15 @@ class ProtoBufMixin(object):
         """
         return
 
-    def _protobuf_to_value(self, dj_field_name, pb_field, pb_value):
+    def _protobuf_to_value(self, dj_field_name, dj_field_type, pb_field,
+                           pb_value):
         """Handling protobuf singular value
 
         :param dj_field_name: Currently target django field's name
+        :param dj_field_type: Currently proecessing django field type
         :param pb_field: Currently processing protobuf message field
         :param pb_value: Currently processing protobuf message value
         :returns: None
         """
-        LOGGER.debug("Django Value Field, set dj field: {} = {}".format(dj_field_name, pb_value))
-        if isinstance(pb_value, Timestamp):
-            self._handling_pb_dt_field(dj_field_name, pb_value)
-            return
-        setattr(self, dj_field_name, pb_value)
-
-    def _handling_pb_dt_field(self, dj_field_name, pb_value):
-        """handling datetime field (Timestamp) object to dj field
-
-        :param dj_field_name: Currently target django field's name
-        :param pb_value: Currently processing protobuf message value
-        :returns: None
-        """
-        dt = pb_value.ToDatetime()
-        if settings.USE_TZ:
-            dt = timezone.localtime(timezone.make_aware(dt, timezone.utc))
-        # FIXME: not datetime field
-        setattr(self, dj_field_name, dt)
+        s_funcs = self._get_serializers(dj_field_type)
+        s_funcs[1](self, dj_field_name, pb_field, pb_value)
