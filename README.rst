@@ -331,8 +331,12 @@ Timezone
 Note that if you use `USE_TZ` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
 And coverted to default timezone in django according to settings.
 
+CONTRIBUTION
+-------------
 
-
+Please fork the repository and test with at least one CI software (ex: travis in this repository).
+And don't forget to add your name to CONTRIBUTORS file.
+Thanks !
 
 LICENSE
 -------
