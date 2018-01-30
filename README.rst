@@ -40,7 +40,7 @@ Install
 
     pip install django-pb-model
 
-2. Add django-pb to django settings.py
+2. Add django-pb to django ``settings.py``
 
 .. code:: python
 
@@ -63,7 +63,7 @@ Install
 Usage
 -----
 
-Declare your protobuf message and compile it. For example:
+Declare your protobuf message file, such as ``account.proto``, and compile it. For example:
 
 .. code:: protobuf
 
@@ -73,15 +73,15 @@ Declare your protobuf message and compile it. For example:
        string password = 3;
    }
 
-as `account.proto` file. Then compile it with:
+Then compile it with:
 
 .. code:: shell
 
    $ protoc --python_out=. account.proto
 
-You will get `account_pb2.py`.
+You will get ``account_pb2.py``.
 
-Now you can interact with your protobuf model, add `ProtoBufMixin` to your model like:
+Now you can interact with your protobuf model, add ``ProtoBufMixin`` to your model like:
 
 .. code:: python
 
@@ -100,7 +100,7 @@ Now you can interact with your protobuf model, add `ProtoBufMixin` to your model
             return "Username: {a.email}, passowrd: {a.password}".format(a=self)
 
 
-By above settings, you can covert between django model and protobuf easily.
+By above settings, you can covert between django model and protobuf easily. For example:
 
 .. code:: python
 
@@ -124,7 +124,7 @@ Field name mapping
 
 To adapt schema migration, field mapping are expected.
 
-For example, the `email` field in previous session is altered to `username`, but we don't want to break the consistance of protobuf protocol. You may add `pb_2_dj_field_map` attribute to solve this problem. Such as:
+For example, the ``email`` field in previous session is altered to ``username``, but we don't want to break the consistance of protobuf protocol. You may add ``pb_2_dj_field_map`` attribute to solve this problem. Such as:
 
 .. code:: python
 
@@ -218,7 +218,7 @@ Django model would be:
 Django to Protobuf
 """"""""""""""""""
 
-If this is not the format you expected, overwite `_m2m_to_protobuf()` of Django model by yourself.
+If this is not the format you expected, overwite ``_m2m_to_protobuf()`` of Django model by yourself.
 
 
 Protobuf to Django
@@ -226,7 +226,7 @@ Protobuf to Django
 
 Same as previous section, we assume m2m field is repeated value in protobuf.
 By default, **NO** operation is performed, which means
-you may query current relation if your coverted django model instance has a valid PK.
+you may query current relation if your coverted django model instance has a valid primary key.
 
 If you want to modify your database while converting on-the-fly, overwrite
 logics such as:
@@ -246,14 +246,14 @@ logics such as:
 
         ...
 
-Also, you should write your coverting policy if m2m is not nested repeated message in `_repeated_to_m2m` method
+Also, you should write your coverting policy if m2m is not nested repeated message in ``_repeated_to_m2m`` method
 
 Datetime Field
 ~~~~~~~~~~~~~~
 
 Datetime is a special singular value.
 
-We currently convert between `datetime.datetime` (Python) and `google.protobuf.timestamp_pb2.Timestamp` (ProboBuf),
+We currently convert between ``datetime.datetime`` (Python) and ``google.protobuf.timestamp_pb2.Timestamp`` (ProboBuf),
 for example:
 
 ProtoBuf message:
@@ -291,7 +291,7 @@ Django Model:
 Custom Fields
 ~~~~~~~~~~~~~
 
-You can write your own field serializers, to convert between `django.contrib.postgres.fields.JSONField` (Python)
+You can write your own field serializers, to convert between ``django.contrib.postgres.fields.JSONField`` (Python)
 and `string` (Protobuf) for example:
 
 ProtoBuf message:
@@ -328,7 +328,7 @@ Django Model:
 Timezone
 """"""""
 
-Note that if you use `USE_TZ` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
+Note that if you use ``USE_TZ`` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
 And coverted to default timezone in django according to settings.
 
 CONTRIBUTION
