@@ -39,5 +39,5 @@ class Main(ProtoBufMixin, models.Model):
     ]
     choices_field = models.IntegerField(default=OPT0, choices=OPTS)
 
-    fk_field = models.ForeignKey(Relation)
+    fk_field = models.ForeignKey(Relation, on_delete=models.DO_NOTHING)
     m2m_field = models.ManyToManyField(M2MRelation)
