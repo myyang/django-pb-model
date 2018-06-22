@@ -15,6 +15,7 @@ Currently support basic value fields and naive relation convertion, including:
 * Choices field
 * Datetime
 * Foriegn Key and Many-to-Many relation
+* [Custom fields](#custom-fields), ex: JSON
 
 You could examine testcases_ for more details
 
@@ -70,7 +71,7 @@ Declare your protobuf message file, such as ``account.proto``, and compile it. F
    message Account {
        int id = 1;
        string email = 2;
-       string password = 3;
+       string nickname = 3;
    }
 
 Then compile it with:
@@ -93,31 +94,30 @@ Now you can interact with your protobuf model, add ``ProtoBufMixin`` to your mod
         pb_model = account_pb2.Account
 
         email = models.EmailField(max_length=64)
-        password = models.CharField(max_length=64)
+        nickname = models.CharField(max_length=64)
 
         def __str__(self):
-            # For demo only, encrypt password and DO NOT expose
-            return "Username: {a.email}, passowrd: {a.password}".format(a=self)
+            return "Username: {a.email}, nickname: {a.nickname}".format(a=self)
 
 
 By above settings, you can covert between django model and protobuf easily. For example:
 
 .. code:: python
 
-   >>> account = Account.objects.create(email='user@email.com', password='passW0rd')
+   >>> account = Account.objects.create(email='user@email.com', nickname='moonmoon')
    >>> account.to_pb()
    email: "user@email.com"
-   passord: "passW0rd"
+   nickname: "moonmoon"
 
    >>> account2 = Account()
    >>> account2.from_pb(account.to_pb())
-   <Account: Username: username@mail, password: passW0rd>
-   
+   <Account: Username: username@mail, nickname: moonmoon>
+
 
 Field details
 -------------
 
-There are several special field types while converting, read following section for more details.
+There are several special field types while converting, read following sections.
 
 Field name mapping
 ~~~~~~~~~~~~~~~~~~~~~
@@ -135,7 +135,7 @@ For example, the ``email`` field in previous session is altered to ``username``,
         }
 
         username = models.CharField(max_length=64)
-        password = models.CharField(max_length=64)
+        nickname = models.CharField(max_length=64)
 
 Foriegn Key
 ~~~~~~~~~~~
@@ -160,7 +160,7 @@ Django model:
    class Relation(ProtoBufMixin, models.Model):
        pb_model = models_pb2.Relation
 
-   
+
    class Main(ProtoBufMixin, models.Model):
        pb_model = models_pb2.Main
 
@@ -211,7 +211,7 @@ Django model would be:
        pass
 
    class Main(models.Model):
-       
+
        m2m = models.ManyToManyField(M2M)
 
 
