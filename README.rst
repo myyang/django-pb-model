@@ -15,11 +15,12 @@ Currently support basic value fields and naive relation convertion, including:
 * Choices field
 * Datetime
 * Foriegn Key and Many-to-Many relation
-* [Custom fields](#custom-fields), ex: JSON
+* `Custom fields`_, ex: JSON
 
 You could examine testcases_ for more details
 
 .. _testcases: https://github.com/myyang/django-pb-model/tree/master/pb_model/tests
+.. _Custom fields: https://github.com/myyang/django-pb-model#custom-fields
 
 And PRs are always welcome :))
 
