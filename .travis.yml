@@ -1,19 +1,38 @@
 language: python
+dist: xenial
 python:
   - 2.7
   - 3.4
   - 3.5
   - 3.6
+  - 3.7
 
 env:
-  - DJANGO='django>=1.8,<1.9'
-  - DJANGO='django>=1.9,<1.10'
-  - DJANGO='django>=1.10,<1.11'
-  - DJANGO='django>=1.11'
+  - DJANGO=1.8
+  - DJANGO=1.9
+  - DJANGO=1.10
+  - DJANGO=1.11
+  - DJANGO=2.0
+  - DJANGO=2.1
+  - DJANGO=2.2
+
+matrix:
+  exclude:
+    - python: 2.7
+      env: DJANGO=2.0
+    - python: 2.7
+      env: DJANGO=2.1
+    - python: 2.7
+      env: DJANGO=2.2
+    - python: 3.4
+      env: DJANGO=2.1
+    - python: 3.4
+      env: DJANGO=2.2
+
 
 install:
   - make install
-  - pip install $DJANGO
+  - pip install django==$DJANGO
 
 script:
     make test
