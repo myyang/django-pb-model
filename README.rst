@@ -14,7 +14,7 @@ Currently support basic value fields and naive relation convertion, including:
 * Integer, String, Float, Boolean
 * Choices field
 * Datetime
-* Foriegn Key and Many-to-Many relation
+* Foreign Key and Many-to-Many relation
 * `Custom fields`_, ex: JSON
 
 You could examine testcases_ for more details
@@ -138,10 +138,10 @@ For example, the ``email`` field in previous session is altered to ``username``,
         username = models.CharField(max_length=64)
         nickname = models.CharField(max_length=64)
 
-Foriegn Key
+Foreign Key
 ~~~~~~~~~~~
 
-Foriegn key is a connect to another model in Django. According to this property, the foreign key could and should be converted to nested singular message in Protobuf. For example:
+Foreign key is a connect to another model in Django. According to this property, the foreign key could and should be converted to nested singular message in Protobuf. For example:
 
 .. code:: Protobuf
 
@@ -165,7 +165,7 @@ Django model:
    class Main(ProtoBufMixin, models.Model):
        pb_model = models_pb2.Main
 
-       fk = models.ForiegnKey(Relation)
+       fk = models.ForeignKey(Relation)
 
 
 With above settings, pb_model would recursivly serialize and de-serialize bewteen Django and ProtoBuf.
