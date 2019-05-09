@@ -18,69 +18,6 @@ if settings.DEBUG:
     LOGGER.setLevel(logging.DEBUG)
 
 
-def _defaultfield_to_pb(pb_obj, pb_field, dj_field_value):
-    """ handling any fields conversion to protobuf
-    """
-    LOGGER.debug("Django Value field, assign proto msg field: {} = {}".format(pb_field.name, dj_field_value))
-    setattr(pb_obj, pb_field.name, dj_field_value)
-
-
-def _defaultfield_from_pb(instance, dj_field_name, pb_field, pb_value):
-    """ handling any fields setting from protobuf
-    """
-    LOGGER.debug("Django Value Field, set dj field: {} = {}".format(dj_field_name, pb_value))
-    setattr(instance, dj_field_name, pb_value)
-
-
-def _datetimefield_to_pb(pb_obj, pb_field, dj_field_value):
-    """handling Django DateTimeField field
-
-    :param pb_obj: protobuf message obj which is return value of to_pb()
-    :param pb_field: protobuf message field which is current processing field
-    :param dj_field_value: Currently proecessing django field value
-    :returns: None
-    """
-    if getattr(getattr(pb_obj, pb_field.name), 'FromDatetime', False):
-        if settings.USE_TZ:
-            dj_field_value = timezone.make_naive(dj_field_value, timezone=timezone.utc)
-        getattr(pb_obj, pb_field.name).FromDatetime(dj_field_value)
-
-
-def _datetimefield_from_pb(instance, dj_field_name, pb_field, pb_value):
-    """handling datetime field (Timestamp) object to dj field
-
-    :param dj_field_name: Currently target django field's name
-    :param pb_value: Currently processing protobuf message value
-    :returns: None
-    """
-    dt = pb_value.ToDatetime()
-    if settings.USE_TZ:
-        dt = timezone.localtime(timezone.make_aware(dt, timezone.utc))
-    # FIXME: not datetime field
-    setattr(instance, dj_field_name, dt)
-
-
-def _uuid_to_pb(pb_obj, pb_field, dj_field_value):
-    """handling Django UUIDField field
-
-    :param pb_obj: protobuf message obj which is return value of to_pb()
-    :param pb_field: protobuf message field which is current processing field
-    :param dj_field_value: Currently proecessing django field value
-    :returns: None
-    """
-    setattr(pb_obj, pb_field.name, str(dj_field_value))
-
-
-def _uuid_from_pb(instance, dj_field_name, pb_field, pb_value):
-    """handling string object to dj UUIDField
-
-    :param dj_field_name: Currently target django field's name
-    :param pb_value: Currently processing protobuf message value
-    :returns: None
-    """
-    setattr(instance, dj_field_name, uuid.UUID(pb_value))
-
-
 class DjangoPBModelError(Exception):
     pass
 
