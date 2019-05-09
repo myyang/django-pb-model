@@ -41,3 +41,26 @@ class Main(ProtoBufMixin, models.Model):
 
     fk_field = models.ForeignKey(Relation, on_delete=models.DO_NOTHING)
     m2m_field = models.ManyToManyField(M2MRelation)
+
+
+class Embedded(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.Root.Embedded
+    pb_2_dj_fields = '__all__'
+
+
+class ListWrapper(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.Root.ListWrapper
+    pb_2_dj_fields = '__all__'
+
+
+class MapWrapper(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.Root.MapWrapper
+    pb_2_dj_fields = '__all__'
+
+
+class Root(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.Root
+    pb_2_dj_fields = '__all__'
+    pb_2_dj_field_map = {'uint32_field': 'uint32_field_renamed'}
+
+    uuid_field = models.UUIDField(null=True)
