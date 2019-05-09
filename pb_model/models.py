@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import six
 
 from django.db import models
 from django.conf import settings
@@ -24,7 +25,7 @@ class DjangoPBModelError(Exception):
 
 class Meta(type(models.Model)):
     def __init__(self, name, bases, attrs):
-        super().__init__(name, bases, attrs)
+        super(Meta, self).__init__(name, bases, attrs)
         self._pb_2_dj_field_serializers = self._pb_2_dj_field_serializers.copy()
         self._pb_2_dj_field_serializers.update(self.pb_2_dj_field_serializers)
 
@@ -132,7 +133,7 @@ class Meta(type(models.Model)):
         :return: RepeatedMessageField
         """
         field_type = self._pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_REPEATED_MESSAGE]
-        return field_type(to=related_type, related_name=f'{own_type}_{field_name}')
+        return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name))
 
     def _create_message_map_field(self, own_type, related_type, field_name):
         """
@@ -143,11 +144,10 @@ class Meta(type(models.Model)):
         :return: MapToMessageField
         """
         field_type = self._pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE_MAP]
-        return field_type(to=related_type, related_name=f'{own_type}_{field_name}')
+        return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name))
 
 
-class ProtoBufMixin(object, metaclass=Meta):
-    __metaclass__ = Meta
+class ProtoBufMixin(six.with_metaclass(Meta, object)):
     """This is mixin for model.Model.
     By setting attribute ``pb_model``, you can specify target ProtoBuf Message
     to handle django model.
@@ -198,19 +198,19 @@ class ProtoBufMixin(object, metaclass=Meta):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ProtoBufMixin, self).__init__(*args, **kwargs)
         for m2m_field in self._meta.many_to_many:
             if issubclass(type(m2m_field), fields.ProtoBufFieldMixin):
                 m2m_field.load(self)
         # TODO: also object.update
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        super(ProtoBufMixin, self).save(*args, **kwargs)
         for m2m_field in self._meta.many_to_many:
             if issubclass(type(m2m_field), fields.ProtoBufFieldMixin):
                 m2m_field.save(self)
         kwargs['force_insert'] = False
-        super().save(*args, **kwargs)
+        super(ProtoBufMixin, self).save(*args, **kwargs)
 
     def to_pb(self):
         """Convert django model to protobuf instance by pre-defined name
