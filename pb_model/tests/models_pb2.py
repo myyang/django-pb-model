@@ -3,11 +3,11 @@
 
 import sys
 _b=sys.version_info[0]<3 and (lambda x:x) or (lambda x:x.encode('latin1'))
+from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -20,10 +20,41 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='models.proto',
   package='models',
   syntax='proto3',
-  serialized_pb=_b('\n\x0cmodels.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\"#\n\x08Relation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"&\n\x0bM2MRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"\xc8\x02\n\x04Main\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0cstring_field\x18\x02 \x01(\t\x12\x15\n\rinteger_field\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_field\x18\x04 \x01(\x02\x12+\n\rchoices_field\x18\x05 \x01(\x0e\x32\x14.models.Main.Options\x12\"\n\x08\x66k_field\x18\x06 \x01(\x0b\x32\x10.models.Relation\x12&\n\tm2m_field\x18\x07 \x03(\x0b\x32\x13.models.M2MRelation\x12\x12\n\nbool_field\x18\x08 \x01(\x08\x12\x32\n\x0e\x64\x61tetime_field\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"1\n\x07Options\x12\x08\n\x04OPT0\x10\x00\x12\x08\n\x04OPT1\x10\x01\x12\x08\n\x04OPT2\x10\x02\x12\x08\n\x04OPT3\x10\x03\x62\x06proto3')
+  serialized_options=None,
+  serialized_pb=_b('\n\x0cmodels.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\"#\n\x08Relation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"&\n\x0bM2MRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"\xc8\x02\n\x04Main\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0cstring_field\x18\x02 \x01(\t\x12\x15\n\rinteger_field\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_field\x18\x04 \x01(\x02\x12+\n\rchoices_field\x18\x05 \x01(\x0e\x32\x14.models.Main.Options\x12\"\n\x08\x66k_field\x18\x06 \x01(\x0b\x32\x10.models.Relation\x12&\n\tm2m_field\x18\x07 \x03(\x0b\x32\x13.models.M2MRelation\x12\x12\n\nbool_field\x18\x08 \x01(\x08\x12\x32\n\x0e\x64\x61tetime_field\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"1\n\x07Options\x12\x08\n\x04OPT0\x10\x00\x12\x08\n\x04OPT1\x10\x01\x12\x08\n\x04OPT2\x10\x02\x12\x08\n\x04OPT3\x10\x03\"\xc1\x08\n\x04Root\x12\x14\n\x0cuint32_field\x18\x01 \x01(\r\x12\x13\n\x0bint32_field\x18\x02 \x01(\x05\x12\x14\n\x0cuint64_field\x18\x03 \x01(\x04\x12\x13\n\x0bint64_field\x18\x04 \x01(\x03\x12\x13\n\x0b\x66loat_field\x18\x05 \x01(\x02\x12\x14\n\x0c\x64ouble_field\x18\x06 \x01(\x01\x12\x14\n\x0cstring_field\x18\x07 \x01(\t\x12\x13\n\x0b\x62ytes_field\x18\x08 \x01(\x0c\x12\x12\n\nbool_field\x18\t \x01(\x08\x12 \n\nenum_field\x18\n \x01(\x0e\x32\x0c.models.Enum\x12\x33\n\x0ftimestamp_field\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\nuuid_field\x18\x0c \x01(\t\x12\x1d\n\x15repeated_uint32_field\x18\r \x03(\r\x12\x1d\n\x15repeated_string_field\x18\x0e \x03(\t\x12\x1d\n\x15repeated_double_field\x18\x0f \x03(\x01\x12L\n\x1amap_string_to_string_field\x18\x10 \x03(\x0b\x32(.models.Root.MapStringToStringFieldEntry\x12,\n\rmessage_field\x18\x11 \x01(\x0b\x32\x15.models.Root.Embedded\x12\x35\n\x16repeated_message_field\x18\x12 \x03(\x0b\x32\x15.models.Root.Embedded\x12N\n\x1bmap_string_to_message_field\x18\x13 \x03(\x0b\x32).models.Root.MapStringToMessageFieldEntry\x12\x35\n\x11list_field_option\x18\x14 \x01(\x0b\x32\x18.models.Root.ListWrapperH\x00\x12\x33\n\x10map_field_option\x18\x15 \x01(\x0b\x32\x17.models.Root.MapWrapperH\x00\x1a=\n\x1bMapStringToStringFieldEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aU\n\x1cMapStringToMessageFieldEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12$\n\x05value\x18\x02 \x01(\x0b\x32\x15.models.Root.Embedded:\x02\x38\x01\x1a\x18\n\x08\x45mbedded\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x05\x1a\x1b\n\x0bListWrapper\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\t\x1aj\n\nMapWrapper\x12/\n\x04\x64\x61ta\x18\x01 \x03(\x0b\x32!.models.Root.MapWrapper.DataEntry\x1a+\n\tDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\t\n\x07options*3\n\x04\x45num\x12\x0f\n\x0b\x45num_NOTSET\x10\x00\x12\x0c\n\x08\x45num_ONE\x10\x01\x12\x0c\n\x08\x45num_TWO\x10\x02\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
+_ENUM = _descriptor.EnumDescriptor(
+  name='Enum',
+  full_name='models.Enum',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='Enum_NOTSET', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='Enum_ONE', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='Enum_TWO', index=2, number=2,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1557,
+  serialized_end=1608,
+)
+_sym_db.RegisterEnumDescriptor(_ENUM)
+
+Enum = enum_type_wrapper.EnumTypeWrapper(_ENUM)
+Enum_NOTSET = 0
+Enum_ONE = 1
+Enum_TWO = 2
 
 
 _MAIN_OPTIONS = _descriptor.EnumDescriptor(
@@ -34,23 +65,23 @@ _MAIN_OPTIONS = _descriptor.EnumDescriptor(
   values=[
     _descriptor.EnumValueDescriptor(
       name='OPT0', index=0, number=0,
-      options=None,
+      serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
       name='OPT1', index=1, number=1,
-      options=None,
+      serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
       name='OPT2', index=2, number=2,
-      options=None,
+      serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
       name='OPT3', index=3, number=3,
-      options=None,
+      serialized_options=None,
       type=None),
   ],
   containing_type=None,
-  options=None,
+  serialized_options=None,
   serialized_start=414,
   serialized_end=463,
 )
@@ -70,21 +101,21 @@ _RELATION = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='num', full_name='models.Relation.num', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -108,21 +139,21 @@ _M2MRELATION = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='num', full_name='models.M2MRelation.num', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -146,63 +177,63 @@ _MAIN = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='string_field', full_name='models.Main.string_field', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='integer_field', full_name='models.Main.integer_field', index=2,
       number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='float_field', full_name='models.Main.float_field', index=3,
       number=4, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='choices_field', full_name='models.Main.choices_field', index=4,
       number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='fk_field', full_name='models.Main.fk_field', index=5,
       number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='m2m_field', full_name='models.Main.m2m_field', index=6,
       number=7, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='bool_field', full_name='models.Main.bool_field', index=7,
       number=8, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='datetime_field', full_name='models.Main.datetime_field', index=8,
       number=9, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -210,7 +241,7 @@ _MAIN = _descriptor.Descriptor(
   enum_types=[
     _MAIN_OPTIONS,
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -220,14 +251,413 @@ _MAIN = _descriptor.Descriptor(
   serialized_end=463,
 )
 
+
+_ROOT_MAPSTRINGTOSTRINGFIELDENTRY = _descriptor.Descriptor(
+  name='MapStringToStringFieldEntry',
+  full_name='models.Root.MapStringToStringFieldEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='models.Root.MapStringToStringFieldEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='models.Root.MapStringToStringFieldEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1233,
+  serialized_end=1294,
+)
+
+_ROOT_MAPSTRINGTOMESSAGEFIELDENTRY = _descriptor.Descriptor(
+  name='MapStringToMessageFieldEntry',
+  full_name='models.Root.MapStringToMessageFieldEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='models.Root.MapStringToMessageFieldEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='models.Root.MapStringToMessageFieldEntry.value', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1296,
+  serialized_end=1381,
+)
+
+_ROOT_EMBEDDED = _descriptor.Descriptor(
+  name='Embedded',
+  full_name='models.Root.Embedded',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='data', full_name='models.Root.Embedded.data', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1383,
+  serialized_end=1407,
+)
+
+_ROOT_LISTWRAPPER = _descriptor.Descriptor(
+  name='ListWrapper',
+  full_name='models.Root.ListWrapper',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='data', full_name='models.Root.ListWrapper.data', index=0,
+      number=1, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1409,
+  serialized_end=1436,
+)
+
+_ROOT_MAPWRAPPER_DATAENTRY = _descriptor.Descriptor(
+  name='DataEntry',
+  full_name='models.Root.MapWrapper.DataEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='models.Root.MapWrapper.DataEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='models.Root.MapWrapper.DataEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=_b('8\001'),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1501,
+  serialized_end=1544,
+)
+
+_ROOT_MAPWRAPPER = _descriptor.Descriptor(
+  name='MapWrapper',
+  full_name='models.Root.MapWrapper',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='data', full_name='models.Root.MapWrapper.data', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_ROOT_MAPWRAPPER_DATAENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1438,
+  serialized_end=1544,
+)
+
+_ROOT = _descriptor.Descriptor(
+  name='Root',
+  full_name='models.Root',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='uint32_field', full_name='models.Root.uint32_field', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='int32_field', full_name='models.Root.int32_field', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='uint64_field', full_name='models.Root.uint64_field', index=2,
+      number=3, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='int64_field', full_name='models.Root.int64_field', index=3,
+      number=4, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='float_field', full_name='models.Root.float_field', index=4,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='double_field', full_name='models.Root.double_field', index=5,
+      number=6, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='string_field', full_name='models.Root.string_field', index=6,
+      number=7, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='bytes_field', full_name='models.Root.bytes_field', index=7,
+      number=8, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='bool_field', full_name='models.Root.bool_field', index=8,
+      number=9, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='enum_field', full_name='models.Root.enum_field', index=9,
+      number=10, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='timestamp_field', full_name='models.Root.timestamp_field', index=10,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='uuid_field', full_name='models.Root.uuid_field', index=11,
+      number=12, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='repeated_uint32_field', full_name='models.Root.repeated_uint32_field', index=12,
+      number=13, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='repeated_string_field', full_name='models.Root.repeated_string_field', index=13,
+      number=14, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='repeated_double_field', full_name='models.Root.repeated_double_field', index=14,
+      number=15, type=1, cpp_type=5, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='map_string_to_string_field', full_name='models.Root.map_string_to_string_field', index=15,
+      number=16, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='message_field', full_name='models.Root.message_field', index=16,
+      number=17, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='repeated_message_field', full_name='models.Root.repeated_message_field', index=17,
+      number=18, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='map_string_to_message_field', full_name='models.Root.map_string_to_message_field', index=18,
+      number=19, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='list_field_option', full_name='models.Root.list_field_option', index=19,
+      number=20, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='map_field_option', full_name='models.Root.map_field_option', index=20,
+      number=21, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[_ROOT_MAPSTRINGTOSTRINGFIELDENTRY, _ROOT_MAPSTRINGTOMESSAGEFIELDENTRY, _ROOT_EMBEDDED, _ROOT_LISTWRAPPER, _ROOT_MAPWRAPPER, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='options', full_name='models.Root.options',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=466,
+  serialized_end=1555,
+)
+
 _MAIN.fields_by_name['choices_field'].enum_type = _MAIN_OPTIONS
 _MAIN.fields_by_name['fk_field'].message_type = _RELATION
 _MAIN.fields_by_name['m2m_field'].message_type = _M2MRELATION
 _MAIN.fields_by_name['datetime_field'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _MAIN_OPTIONS.containing_type = _MAIN
+_ROOT_MAPSTRINGTOSTRINGFIELDENTRY.containing_type = _ROOT
+_ROOT_MAPSTRINGTOMESSAGEFIELDENTRY.fields_by_name['value'].message_type = _ROOT_EMBEDDED
+_ROOT_MAPSTRINGTOMESSAGEFIELDENTRY.containing_type = _ROOT
+_ROOT_EMBEDDED.containing_type = _ROOT
+_ROOT_LISTWRAPPER.containing_type = _ROOT
+_ROOT_MAPWRAPPER_DATAENTRY.containing_type = _ROOT_MAPWRAPPER
+_ROOT_MAPWRAPPER.fields_by_name['data'].message_type = _ROOT_MAPWRAPPER_DATAENTRY
+_ROOT_MAPWRAPPER.containing_type = _ROOT
+_ROOT.fields_by_name['enum_field'].enum_type = _ENUM
+_ROOT.fields_by_name['timestamp_field'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_ROOT.fields_by_name['map_string_to_string_field'].message_type = _ROOT_MAPSTRINGTOSTRINGFIELDENTRY
+_ROOT.fields_by_name['message_field'].message_type = _ROOT_EMBEDDED
+_ROOT.fields_by_name['repeated_message_field'].message_type = _ROOT_EMBEDDED
+_ROOT.fields_by_name['map_string_to_message_field'].message_type = _ROOT_MAPSTRINGTOMESSAGEFIELDENTRY
+_ROOT.fields_by_name['list_field_option'].message_type = _ROOT_LISTWRAPPER
+_ROOT.fields_by_name['map_field_option'].message_type = _ROOT_MAPWRAPPER
+_ROOT.oneofs_by_name['options'].fields.append(
+  _ROOT.fields_by_name['list_field_option'])
+_ROOT.fields_by_name['list_field_option'].containing_oneof = _ROOT.oneofs_by_name['options']
+_ROOT.oneofs_by_name['options'].fields.append(
+  _ROOT.fields_by_name['map_field_option'])
+_ROOT.fields_by_name['map_field_option'].containing_oneof = _ROOT.oneofs_by_name['options']
 DESCRIPTOR.message_types_by_name['Relation'] = _RELATION
 DESCRIPTOR.message_types_by_name['M2MRelation'] = _M2MRELATION
 DESCRIPTOR.message_types_by_name['Main'] = _MAIN
+DESCRIPTOR.message_types_by_name['Root'] = _ROOT
+DESCRIPTOR.enum_types_by_name['Enum'] = _ENUM
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Relation = _reflection.GeneratedProtocolMessageType('Relation', (_message.Message,), dict(
@@ -251,5 +681,63 @@ Main = _reflection.GeneratedProtocolMessageType('Main', (_message.Message,), dic
   ))
 _sym_db.RegisterMessage(Main)
 
+Root = _reflection.GeneratedProtocolMessageType('Root', (_message.Message,), dict(
 
+  MapStringToStringFieldEntry = _reflection.GeneratedProtocolMessageType('MapStringToStringFieldEntry', (_message.Message,), dict(
+    DESCRIPTOR = _ROOT_MAPSTRINGTOSTRINGFIELDENTRY,
+    __module__ = 'models_pb2'
+    # @@protoc_insertion_point(class_scope:models.Root.MapStringToStringFieldEntry)
+    ))
+  ,
+
+  MapStringToMessageFieldEntry = _reflection.GeneratedProtocolMessageType('MapStringToMessageFieldEntry', (_message.Message,), dict(
+    DESCRIPTOR = _ROOT_MAPSTRINGTOMESSAGEFIELDENTRY,
+    __module__ = 'models_pb2'
+    # @@protoc_insertion_point(class_scope:models.Root.MapStringToMessageFieldEntry)
+    ))
+  ,
+
+  Embedded = _reflection.GeneratedProtocolMessageType('Embedded', (_message.Message,), dict(
+    DESCRIPTOR = _ROOT_EMBEDDED,
+    __module__ = 'models_pb2'
+    # @@protoc_insertion_point(class_scope:models.Root.Embedded)
+    ))
+  ,
+
+  ListWrapper = _reflection.GeneratedProtocolMessageType('ListWrapper', (_message.Message,), dict(
+    DESCRIPTOR = _ROOT_LISTWRAPPER,
+    __module__ = 'models_pb2'
+    # @@protoc_insertion_point(class_scope:models.Root.ListWrapper)
+    ))
+  ,
+
+  MapWrapper = _reflection.GeneratedProtocolMessageType('MapWrapper', (_message.Message,), dict(
+
+    DataEntry = _reflection.GeneratedProtocolMessageType('DataEntry', (_message.Message,), dict(
+      DESCRIPTOR = _ROOT_MAPWRAPPER_DATAENTRY,
+      __module__ = 'models_pb2'
+      # @@protoc_insertion_point(class_scope:models.Root.MapWrapper.DataEntry)
+      ))
+    ,
+    DESCRIPTOR = _ROOT_MAPWRAPPER,
+    __module__ = 'models_pb2'
+    # @@protoc_insertion_point(class_scope:models.Root.MapWrapper)
+    ))
+  ,
+  DESCRIPTOR = _ROOT,
+  __module__ = 'models_pb2'
+  # @@protoc_insertion_point(class_scope:models.Root)
+  ))
+_sym_db.RegisterMessage(Root)
+_sym_db.RegisterMessage(Root.MapStringToStringFieldEntry)
+_sym_db.RegisterMessage(Root.MapStringToMessageFieldEntry)
+_sym_db.RegisterMessage(Root.Embedded)
+_sym_db.RegisterMessage(Root.ListWrapper)
+_sym_db.RegisterMessage(Root.MapWrapper)
+_sym_db.RegisterMessage(Root.MapWrapper.DataEntry)
+
+
+_ROOT_MAPSTRINGTOSTRINGFIELDENTRY._options = None
+_ROOT_MAPSTRINGTOMESSAGEFIELDENTRY._options = None
+_ROOT_MAPWRAPPER_DATAENTRY._options = None
 # @@protoc_insertion_point(module_scope)

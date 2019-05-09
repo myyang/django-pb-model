@@ -34,3 +34,51 @@ message Main {
     bool bool_field=8;
     google.protobuf.Timestamp datetime_field = 9;
 }
+
+
+enum Enum {
+  Enum_NOTSET                                       = 0;
+  Enum_ONE                                          = 1;
+  Enum_TWO                                          = 2;
+}
+
+
+message Root {
+  uint32 uint32_field                               = 1;
+  int32 int32_field                                 = 2;
+  uint64 uint64_field                               = 3;
+  int64 int64_field                                 = 4;
+  float float_field                                 = 5;
+  double double_field                               = 6;
+  string string_field                               = 7;
+  bytes bytes_field                                 = 8;
+  bool bool_field                                   = 9;
+
+  Enum enum_field                                   = 10;
+  google.protobuf.Timestamp timestamp_field         = 11;
+  string uuid_field                                 = 12;
+
+  repeated uint32 repeated_uint32_field             = 13;
+  repeated string repeated_string_field             = 14;
+  repeated double repeated_double_field             = 15;
+  map<string, string> map_string_to_string_field    = 16;
+
+  Embedded message_field                            = 17;
+  repeated Embedded repeated_message_field          = 18;
+  map<string, Embedded> map_string_to_message_field = 19;
+
+  oneof options {
+    ListWrapper list_field_option                   = 20;
+    MapWrapper map_field_option                     = 21;
+  }
+
+  message Embedded {
+    int32 data                                      = 1;
+  }
+  message ListWrapper {
+    repeated string data                            = 1;
+  }
+  message MapWrapper {
+    map<string, string> data                        = 1;
+  }
+}
