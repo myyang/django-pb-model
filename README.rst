@@ -9,12 +9,12 @@ django-pb-model
 
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
-Currently support basic value fields and naive relation convertion, including:
+Currently support basic value fields and naive relation conversion, including:
 
 * Integer, String, Float, Boolean
 * Choices field
 * Datetime
-* Foriegn Key and Many-to-Many relation
+* Foreign Key and Many-to-Many relation
 * `Custom fields`_, ex: JSON
 
 You could examine testcases_ for more details
@@ -28,7 +28,7 @@ And PRs are always welcome :))
 Compatibility
 -------------
 
-Currnetly tested with metrics:
+Currently tested with metrics:
 
 * Python2.7, 3.4, 3.5, 3.6, 3.7
 * Django1.8, 1,9, 1.10, 1.11, 2.0, 2.1, 2.2
@@ -125,7 +125,7 @@ Field name mapping
 
 To adapt schema migration, field mapping are expected.
 
-For example, the ``email`` field in previous session is altered to ``username``, but we don't want to break the consistance of protobuf protocol. You may add ``pb_2_dj_field_map`` attribute to solve this problem. Such as:
+For example, the ``email`` field in previous session is altered to ``username``, but we don't want to break the consistence of protobuf protocol. You may add ``pb_2_dj_field_map`` attribute to solve this problem. Such as:
 
 .. code:: python
 
@@ -138,10 +138,10 @@ For example, the ``email`` field in previous session is altered to ``username``,
         username = models.CharField(max_length=64)
         nickname = models.CharField(max_length=64)
 
-Foriegn Key
+Foreign Key
 ~~~~~~~~~~~
 
-Foriegn key is a connect to another model in Django. According to this property, the foreign key could and should be converted to nested singular message in Protobuf. For example:
+Foreign key is a connect to another model in Django. According to this property, the foreign key could and should be converted to nested singular message in Protobuf. For example:
 
 .. code:: Protobuf
 
@@ -165,10 +165,10 @@ Django model:
    class Main(ProtoBufMixin, models.Model):
        pb_model = models_pb2.Main
 
-       fk = models.ForiegnKey(Relation)
+       fk = models.ForeignKey(Relation)
 
 
-With above settings, pb_model would recursivly serialize and de-serialize bewteen Django and ProtoBuf.
+With above settings, pb_model would recursively serialize and de-serialize between Django and ProtoBuf.
 
 .. code:: python
 
@@ -219,7 +219,7 @@ Django model would be:
 Django to Protobuf
 """"""""""""""""""
 
-If this is not the format you expected, overwite ``_m2m_to_protobuf()`` of Django model by yourself.
+If this is not the format you expected, overwrite ``_m2m_to_protobuf()`` of Django model by yourself.
 
 
 Protobuf to Django
@@ -227,7 +227,7 @@ Protobuf to Django
 
 Same as previous section, we assume m2m field is repeated value in protobuf.
 By default, **NO** operation is performed, which means
-you may query current relation if your coverted django model instance has a valid primary key.
+you may query current relation if your converted django model instance has a valid primary key.
 
 If you want to modify your database while converting on-the-fly, overwrite
 logics such as:
@@ -247,7 +247,7 @@ logics such as:
 
         ...
 
-Also, you should write your coverting policy if m2m is not nested repeated message in ``_repeated_to_m2m`` method
+Also, you should write your converting policy if m2m is not nested repeated message in ``_repeated_to_m2m`` method
 
 Datetime Field
 ~~~~~~~~~~~~~~
