@@ -1,8 +1,16 @@
+import datetime
+import uuid
+
 from django.test import TestCase
+from django.db import models as dj_models
+
+from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf.descriptor import FieldDescriptor
 
 # Create your tests here.
 
-from . import models
+from pb_model.models import ProtoBufMixin
+from . import models, models_pb2
 
 
 class ProtoBufConvertingTest(TestCase):
@@ -66,3 +74,80 @@ class ProtoBufConvertingTest(TestCase):
                 main_item.m2m_field.order_by('id').values_list('id', flat=True),
                 main_item2.m2m_field.order_by('id').values_list('id', flat=True))
         )
+    
+        main_item2.save()
+        main_item2 = models.Main.objects.get()
+        assert main_item.to_pb() == main_item2.to_pb()
+
+    def test_inheritance(self):
+        class Parent(ProtoBufMixin, dj_models.Model):
+            pb_model = models_pb2.Root
+            pb_2_dj_fields = ['uint32_field']
+            pb_2_dj_field_map = {'uint32_field': 'uint32_field_renamed'}
+            pb_auto_field_type_mapping = {
+                FieldDescriptor.TYPE_UINT32: dj_models.IntegerField
+            }
+
+        class Child(Parent):
+            pb_model = models_pb2.Root
+            pb_2_dj_fields = ['uint64_field']
+            pb_2_dj_field_map = {'uint64_field': 'uint64_field_renamed'}
+            pb_auto_field_type_mapping = {
+                FieldDescriptor.TYPE_UINT32: dj_models.FloatField,
+                FieldDescriptor.TYPE_UINT64: dj_models.IntegerField
+            }
+
+        assert ProtoBufMixin.pb_auto_field_type_mapping[FieldDescriptor.TYPE_UINT32] is dj_models.PositiveIntegerField
+        assert Parent.pb_auto_field_type_mapping[FieldDescriptor.TYPE_UINT32] is dj_models.IntegerField
+
+        assert {f.name for f in Parent._meta.get_fields()} == {'child', 'id', 'uint32_field_renamed'}
+        assert type(Parent._meta.get_field('uint32_field_renamed')) is dj_models.IntegerField
+
+        assert {f.name for f in Child._meta.get_fields()} == {'parent_ptr', 'id', 'uint32_field_renamed', 'uint64_field_renamed'}
+        assert type(Child._meta.get_field('uint32_field_renamed')) is dj_models.IntegerField
+        assert type(Child._meta.get_field('uint64_field_renamed')) is dj_models.IntegerField
+
+    def test_auto_fields(self):
+        timestamp = Timestamp()
+        timestamp.FromDatetime(datetime.datetime.now())
+        pb_object = models_pb2.Root(
+            uint32_field=1234,
+            uint64_field=123,
+            int64_field=123,
+            float_field=12.3,
+            double_field=12.3,
+            string_field='123',
+            bytes_field=b'123',
+            bool_field=True,
+            uuid_field=str(uuid.uuid4()),
+
+            enum_field=1,
+            timestamp_field=timestamp,
+            repeated_uint32_field=[1, 2, 3],
+            map_string_to_string_field={'qwe': 'asd'},
+
+            message_field=models_pb2.Root.Embedded(data=123),
+            repeated_message_field=[models_pb2.Root.Embedded(data=123), models_pb2.Root.Embedded(data=456), models_pb2.Root.Embedded(data=789)],
+            map_string_to_message_field={'qwe': models_pb2.Root.Embedded(data=123), 'asd': models_pb2.Root.Embedded(data=456)},
+
+            list_field_option=models_pb2.Root.ListWrapper(data=['qwe', 'asd', 'zxc'])
+        )
+
+        dj_object = models.Root()
+        dj_object.from_pb(pb_object)
+        dj_object.message_field.save()
+        dj_object.message_field = dj_object.message_field
+        for m in dj_object.repeated_message_field:
+            m.save()
+        for m in dj_object.map_string_to_message_field.values():
+            m.save()
+        dj_object.list_field_option.save()
+        dj_object.list_field_option = dj_object.list_field_option
+        dj_object.save()
+
+        dj_object_from_db = models.Root.objects.get()
+        assert [o.data for o in dj_object_from_db.repeated_message_field] == [123, 456, 789]
+        assert {k: o.data for k, o in dj_object_from_db.map_string_to_message_field.items()} == {'qwe': 123, 'asd': 456}
+        assert dj_object_from_db.uint32_field_renamed == pb_object.uint32_field
+        result = dj_object_from_db.to_pb()
+        assert pb_object == result

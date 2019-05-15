@@ -9,6 +9,7 @@ django-pb-model
 
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
+Automatic model generation from protobuf message definitions is supported.
 Currently support basic value fields and naive relation conversion, including:
 
 * Integer, String, Float, Boolean
@@ -114,6 +115,45 @@ By above settings, you can covert between django model and protobuf easily. For 
    >>> account2.from_pb(account.to_pb())
    <Account: Username: username@mail, nickname: moonmoon>
 
+
+Automatic field generation
+--------------------------
+
+To automatically generate django model fields based on protobuf field types.
+
+If you don't want to manually specify fields in your django model, you can list names of desired fields under ``pb_2_dj_fields`` attribute to have those generated and added to your model automatically.
+
+.. code:: python
+
+    class Account(ProtoBufMixin, models.Model):
+        pb_model = account_pb2.Account
+        pb_2_dj_fields = ['email', 'nickname']
+
+
+Alternatively if you want all protobuf fields to be mapped you can do ``pb_2_dj_fields = '__all__'``.
+
+Fields listed in ``pb_2_dj_fields`` can be overwritten using manuall definition.
+
+.. code:: python
+
+    class Account(ProtoBufMixin, models.Model):
+        pb_model = account_pb2.Account
+        pb_2_dj_fields = '__all__'
+        
+        email = models.EmailField(max_length=64)
+
+
+Type of generated field depends on corresponding protobuf field type. If you want to change default field type mappings you can overwrite those using ``pb_auto_field_type_mapping`` attribute.
+
+Following protobuf field types are supported:
+
+* uint32, int32, uint64, int64, float, double, bool, Enum
+* string, bytes
+* google.protobuf.Timestamp
+* Messages
+* oneof fields
+* repeated scalar and Message fields
+* map fields with scalar as key and scalar or Message as value
 
 Field details
 -------------
