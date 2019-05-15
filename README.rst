@@ -31,7 +31,7 @@ Compatibility
 Currently tested with metrics:
 
 * Python2.7, 3.4, 3.5, 3.6, 3.7
-* Django1.8, 1,9, 1.10, 1.11, 2.0, 2.1, 2.2
+* Django1.11, 2.0, 2.1, 2.2
 
 Install
 -------
