@@ -97,8 +97,8 @@ class ProtoBufConvertingTest(TestCase):
                 FieldDescriptor.TYPE_UINT64: dj_models.IntegerField
             }
 
-        assert ProtoBufMixin._pb_auto_field_type_mapping[FieldDescriptor.TYPE_UINT32] is dj_models.PositiveIntegerField
-        assert Parent._pb_auto_field_type_mapping[FieldDescriptor.TYPE_UINT32] is dj_models.IntegerField
+        assert ProtoBufMixin.pb_auto_field_type_mapping[FieldDescriptor.TYPE_UINT32] is dj_models.PositiveIntegerField
+        assert Parent.pb_auto_field_type_mapping[FieldDescriptor.TYPE_UINT32] is dj_models.IntegerField
 
         assert {f.name for f in Parent._meta.get_fields()} == {'child', 'id', 'uint32_field_renamed'}
         assert type(Parent._meta.get_field('uint32_field_renamed')) is dj_models.IntegerField
