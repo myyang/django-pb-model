@@ -194,6 +194,8 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
     schema migration or any model changes.
     """
 
+    default_serializers = (fields._defaultfield_to_pb, fields._defaultfield_from_pb)
+
     def __init__(self, *args, **kwargs):
         super(ProtoBufMixin, self).__init__(*args, **kwargs)
         for m2m_field in self._meta.many_to_many:
@@ -224,10 +226,16 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
             try:
                 _dj_f_value, _dj_f_type = getattr(self, _dj_f_name), _dj_field_map[_dj_f_name]
                 if not (_dj_f_type.null and _dj_f_value is None):
-                    if _dj_f_type.is_relation and not issubclass(type(_dj_f_type), fields.ProtoBufFieldMixin):
-                        self._relation_to_protobuf(_pb_obj, _f, _dj_f_type, _dj_f_value)
-                    else:
+
+                    # See if there's a custom serializer for this field relation or not
+                    field_serializers = self._get_serializers(type(_dj_f_type), _f)
+                    if field_serializers and field_serializers != self.default_serializers:
                         self._value_to_protobuf(_pb_obj, _f, type(_dj_f_type), _dj_f_value)
+                    else:
+                        if _dj_f_type.is_relation and not issubclass(type(_dj_f_type), fields.ProtoBufFieldMixin):
+                            self._relation_to_protobuf(_pb_obj, _f, _dj_f_type, _dj_f_value)
+                        else:
+                            self._value_to_protobuf(_pb_obj, _f, type(_dj_f_type), _dj_f_value)
             except AttributeError as e:
                 LOGGER.error("Fail to serialize field: {} for {}. Error: {}".format(_dj_f_name, self._meta.model, e))
                 raise DjangoPBModelError("Can't serialize Model({})'s field: {}. Err: {}".format(_dj_f_name, self._meta.model, e))
@@ -280,7 +288,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
         getattr(pb_obj, pb_field.name).extend(
             [_m2m.to_pb() for _m2m in dj_m2m_field.all()])
 
-    def _get_serializers(self, dj_field_type):
+    def _get_serializers(self, dj_field_type, pb_field=None):
         """Getting the correct serializers for a field type
 
         :param dj_field_type: Currently processing django field type
@@ -289,13 +297,20 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
         if issubclass(dj_field_type, fields.ProtoBufFieldMixin):
             funcs = dj_field_type.to_pb, dj_field_type.from_pb
         else:
-            defaults = (fields._defaultfield_to_pb, fields._defaultfield_from_pb)
-            funcs = self.pb_2_dj_field_serializers.get(dj_field_type, defaults)
+            defaults = self.default_serializers
+            funcs = self.pb_2_dj_field_serializers.get(dj_field_type, None)
+            if not funcs:
+                if pb_field:
+                    # Check by field name
+                    funcs = self.pb_2_dj_field_serializers.get(pb_field.name, defaults)
+                else:
+                    funcs = defaults
+
 
         if len(funcs) != 2:
             LOGGER.warning(
                 "Custom serializers require a pair of functions: {0} is misconfigured".
-                format(dj_field_type))
+                    format(dj_field_type))
             return defaults
 
         return funcs
@@ -310,7 +325,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
         :returns: None
 
         """
-        s_funcs = self._get_serializers(dj_field_type)
+        s_funcs = self._get_serializers(dj_field_type, pb_field)
         s_funcs[0](pb_obj, pb_field, dj_field_value)
 
     def from_pb(self, _pb_obj):
@@ -323,6 +338,11 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
         for _f, _v in _pb_obj.ListFields():
             _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
             _dj_f_type = _dj_field_map[_dj_f_name]
+
+            field_serializers = self._get_serializers(type(_dj_f_type), _f)
+            if field_serializers and field_serializers != self.default_serializers:
+                self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
+
             if _f.message_type is not None:
                 dj_field = _dj_field_map[_dj_f_name]
                 if dj_field.is_relation and not issubclass(type(dj_field), fields.ProtoBufFieldMixin):
@@ -395,5 +415,5 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
         :param pb_value: Currently processing protobuf message value
         :returns: None
         """
-        s_funcs = self._get_serializers(dj_field_type)
+        s_funcs = self._get_serializers(dj_field_type, pb_field)
         s_funcs[1](self, dj_field_name, pb_field, pb_value)
