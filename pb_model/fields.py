@@ -195,6 +195,9 @@ class RepeatedMessageField(models.ManyToManyField, ProtoBufFieldMixin):
         setattr(instance, dj_field_name, [related_model().from_pb(pb_message) for pb_message in pb_value])
 
 
+class RepeatedForeignField(JSONField):
+    pass
+
 class MessageMapField(models.ManyToManyField, ProtoBufFieldMixin):
     class Descriptor(models.fields.related_descriptors.ManyToManyDescriptor):
         def __init__(self, field_name, index_field_name, rel, reverse=False):

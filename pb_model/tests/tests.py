@@ -107,6 +107,50 @@ class ProtoBufConvertingTest(TestCase):
         assert type(Child._meta.get_field('uint32_field_renamed')) is dj_models.IntegerField
         assert type(Child._meta.get_field('uint64_field_renamed')) is dj_models.IntegerField
 
+    def test_custom_serializer(self):
+        """
+        Default serialization strategies can be overriden
+        """
+
+        def serializer(pb_obj, pb_field, dj_value):
+            """
+            Serialize NativeRelation as a repeated int32
+            """
+            getattr(pb_obj, 'foreign_field').extend([dj_value.first, dj_value.second, dj_value.third])
+
+
+        def deserializer(instance, dj_field_name, pb_field, pb_value):
+            setattr(instance, 'foreign_field',
+                    NativeRelation(
+                        first=pb_value[0],
+                        second=pb_value[1],
+                        third=pb_value[2]
+                    ))
+
+        # This is a relation type that's not ProtoBuf enabled
+        class NativeRelation(dj_models.Model):
+            first = dj_models.IntegerField()
+            second = dj_models.IntegerField()
+            third = dj_models.IntegerField()
+
+
+        class Model(ProtoBufMixin, dj_models.Model):
+            pb_model = models_pb2.Root
+            pb_2_dj_fields = ['foreign_field']
+            pb_2_dj_field_serializers = {
+                'foreign_field': (serializer, deserializer)
+            }
+            foreign_field = dj_models.ForeignKey(NativeRelation, on_delete=dj_models.DO_NOTHING)
+
+        _in = Model(foreign_field=NativeRelation(first=123, second=456, third=789))
+
+        out = Model().from_pb(_in.to_pb())
+
+        assert out.foreign_field.first == 123
+        assert out.foreign_field.second == 456
+        assert out.foreign_field.third == 789
+
+
     def test_auto_fields(self):
         timestamp = Timestamp()
         timestamp.FromDatetime(datetime.datetime.now())
