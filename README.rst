@@ -6,6 +6,8 @@ django-pb-model
 
 .. image:: https://img.shields.io/pypi/v/django-pb-model.svg
        :target: https://pypi.python.org/pypi/django-pb-model
+.. image:: https://coveralls.io/repos/myyang/django-pb-model/badge.svg?service=github
+   :target: https://coveralls.io/github/myyang/django-pb-model
 
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
