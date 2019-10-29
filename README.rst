@@ -6,8 +6,7 @@ django-pb-model
 
 .. image:: https://img.shields.io/pypi/v/django-pb-model.svg
        :target: https://pypi.python.org/pypi/django-pb-model
-.. image:: https://coveralls.io/repos/myyang/django-pb-model/badge.svg?service=github
-   :target: https://coveralls.io/github/myyang/django-pb-model
+.. image:: https://coveralls.io/repos/myyang/django-pb-model/badge.svg?service=github :target: https://coveralls.io/github/myyang/django-pb-model
 
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
@@ -27,6 +26,26 @@ You could examine testcases_ for more details
 
 And PRs are always welcome :))
 
+Table of Content
+------------------------
+
+  * Compatibility_
+  * Install_
+  * Usage_
+  * `Automatic field generation`_
+  * `Field details`_
+
+    * `Field name mapping`_
+    * `Foreign Key`_
+    * `Many-to-Many field`_
+
+      * `Django to Protobuf`_
+      * `Protobuf to Django`_
+
+    * `Datetime Field`_
+    * `Custom Fields`_
+
+      * Timezone_
 
 Compatibility
 -------------
