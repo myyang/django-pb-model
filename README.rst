@@ -52,8 +52,8 @@ Compatibility
 
 Currently tested with metrics:
 
-* Python2.7, 3.4, 3.5, 3.6, 3.7
-* Django1.11, 2.0, 2.1, 2.2
+* Python3.4, 3.5, 3.6, 3.7
+* Django2.0, 2.1, 2.2
 
 Install
 -------
@@ -113,7 +113,7 @@ Now you can interact with your protobuf model, add ``ProtoBufMixin`` to your mod
     from pb_model.models import ProtoBufMixin
     from . import account_pb2
 
-    class Account(ProtoBufMixin, models.Model):
+    class Account(ProtoBufMixin):
         pb_model = account_pb2.Account
 
         email = models.EmailField(max_length=64)
@@ -146,18 +146,18 @@ If you don't want to manually specify fields in your django model, you can list 
 
 .. code:: python
 
-    class Account(ProtoBufMixin, models.Model):
+    class Account(ProtoBufMixin):
         pb_model = account_pb2.Account
         pb_2_dj_fields = ['email', 'nickname']
 
 
-Alternatively if you want all protobuf fields to be mapped you can do ``pb_2_dj_fields = '__all__'``.
+Alternatively if you want all protobuf fields to be mapped you can do ``pb_2_dj_fields = '__all__'`` or say nothing about it.
 
 Fields listed in ``pb_2_dj_fields`` can be overwritten using manuall definition.
 
 .. code:: python
 
-    class Account(ProtoBufMixin, models.Model):
+    class Account(ProtoBufMixin):
         pb_model = account_pb2.Account
         pb_2_dj_fields = '__all__'
         
@@ -190,7 +190,7 @@ For example, the ``email`` field in previous session is altered to ``username``,
 
 .. code:: python
 
-    class Account(ProtoBufMixin, models.Model):
+    class Account(ProtoBufMixin):
         pb_model = account_pb2.Account
         pb_2_dj_field_map = {
             "email": "username",  # protobuf field as key and django field as value
@@ -219,11 +219,11 @@ Django model:
 
 .. code:: python
 
-   class Relation(ProtoBufMixin, models.Model):
+   class Relation(ProtoBufMixin):
        pb_model = models_pb2.Relation
 
 
-   class Main(ProtoBufMixin, models.Model):
+   class Main(ProtoBufMixin):
        pb_model = models_pb2.Main
 
        fk = models.ForeignKey(Relation)
@@ -299,7 +299,7 @@ logics such as:
 
     ...
 
-    class PBCompatibleModel(ProtoBufMixin, models.Model):
+    class PBCompatibleModel(ProtoBufMixin:
 
         def _repeated_to_m2m(self, dj_field, _pb_repeated_set):
             with transaction.atomic():
@@ -335,7 +335,7 @@ Django Model:
 
 .. code:: python
 
-   class WithDatetime(ProtoBufMixin, models.Model):
+   class WithDatetime(ProtoBufMixin):
        pb_model = models_pb2.WithDatetime
 
        datetime_field = models.DatetimeField(default=timezone.now())
@@ -377,7 +377,7 @@ Django Model:
     def json_deserializer(instance, dj_field_name, pb_field, pb_value):
         setattr(instance, dj_field_name, json.loads(pb_value))
 
-    class WithJSONField(ProtoBufMixin, models.Model):
+    class WithJSONField(ProtoBufMixin):
         pb_model = models_pb2.WithJSONBlob
 
         pb_2_dj_field_serializers = {
