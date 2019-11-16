@@ -171,7 +171,7 @@ class Metacls(models.base.ModelBase):
 
             for pb_field_name in attrs['pb_2_dj_fields']:
                 pb_field_descriptor = attrs['pb_model'].DESCRIPTOR.fields_by_name[pb_field_name]
-                dj_field_name = attrs.get('pb_2_dj_field_map',{}).get(pb_field_name, pb_field_name)
+                dj_field_name = attrs.setdefault('pb_2_dj_field_map',{}).get(pb_field_name, pb_field_name)
                 if dj_field_name not in attrs:
                     field = self._create_field(self, pb_field_descriptor)
                     if field is not None:
