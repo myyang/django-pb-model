@@ -299,7 +299,7 @@ logics such as:
 
     ...
 
-    class PBCompatibleModel(ProtoBufMixin:
+    class PBCompatibleModel(ProtoBufMixin):
 
         def _repeated_to_m2m(self, dj_field, _pb_repeated_set):
             with transaction.atomic():
