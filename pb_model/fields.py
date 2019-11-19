@@ -171,11 +171,14 @@ class RepeatedMessageField(models.ManyToManyField, ProtoBufFieldMixin):
 
     def contribute_to_class(self, cls, name):
         index_field_name = '%s_index' % name
-        index_field = JSONField(default=[], editable=False, blank=True)
-        index_field.creation_counter = self.creation_counter
-        cls.add_to_class(index_field_name, index_field)
+        exists = index_field_name in [f.attname for f in cls._meta.fields]
+        if not exists:
+            index_field = JSONField(default=[], editable=False, blank=True)
+            index_field.creation_counter = self.creation_counter
+            cls.add_to_class(index_field_name, index_field)
         super(RepeatedMessageField, self).contribute_to_class(cls, name)
-        setattr(cls, self.attname, RepeatedMessageField.Descriptor(name, index_field_name, self.remote_field, reverse=False))
+        if not exists:
+            setattr(cls, self.attname, RepeatedMessageField.Descriptor(name, index_field_name, self.remote_field, reverse=False))
 
     def save(self, instance):
         for message in getattr(instance, self.attname):
@@ -223,11 +226,14 @@ class MessageMapField(models.ManyToManyField, ProtoBufFieldMixin):
 
     def contribute_to_class(self, cls, name):
         index_field_name = '%s_index' % name
-        index_field = JSONField(default={}, editable=False, blank=True)
-        index_field.creation_counter = self.creation_counter
-        cls.add_to_class(index_field_name, index_field)
+        exists = index_field_name in [f.attname for f in cls._meta.fields]
+        if not exists:
+            index_field = JSONField(default={}, editable=False, blank=True)
+            index_field.creation_counter = self.creation_counter
+            cls.add_to_class(index_field_name, index_field)
         super(MessageMapField, self).contribute_to_class(cls, name)
-        setattr(cls, self.attname, MessageMapField.Descriptor(name, index_field_name, self.remote_field, reverse=False))
+        if not exists:
+            setattr(cls, self.attname, MessageMapField.Descriptor(name, index_field_name, self.remote_field, reverse=False))
 
     def save(self, instance):
         for message in getattr(instance, self.attname).values():
