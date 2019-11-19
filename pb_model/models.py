@@ -5,7 +5,7 @@ import logging
 
 from django.db import models
 from django.conf import settings
-
+from django.contrib.contenttypes.models import ContentType
 from google.protobuf.descriptor import FieldDescriptor
 
 from . import fields
@@ -162,21 +162,21 @@ class Metacls(models.base.ModelBase):
             return self._create_generic_field(message_field_type)
 
     def __new__(self, name, bases, attrs):
-        cls = super().__new__(self, name, bases, attrs)
 
         if 'pb_model' in attrs:
-            if not 'pb_2_dj_fields' in attrs or attrs['pb_2_dj_fields'] == '__all__':
+            if 'pb_2_dj_fields' not in attrs or attrs['pb_2_dj_fields'] == '__all__':
             # attrs['pb_2_dj_fields'] == '__all__':
                 attrs['pb_2_dj_fields'] = attrs['pb_model'].DESCRIPTOR.fields_by_name.keys()
-
+            attrs.setdefault('pb_2_dj_field_map',{})
             for pb_field_name in attrs['pb_2_dj_fields']:
                 pb_field_descriptor = attrs['pb_model'].DESCRIPTOR.fields_by_name[pb_field_name]
-                dj_field_name = attrs.setdefault('pb_2_dj_field_map',{}).get(pb_field_name, pb_field_name)
+                dj_field_name = attrs['pb_2_dj_field_map'].get(pb_field_name, pb_field_name)
                 if dj_field_name not in attrs:
                     field = self._create_field(self, pb_field_descriptor)
                     if field is not None:
-                        field.contribute_to_class(cls, dj_field_name)
-        return cls
+                        attrs[dj_field_name] = field
+
+        return super().__new__(self, name, bases, attrs)
 
 
 class ProtoBufMixin(models.Model,metaclass=Metacls):
@@ -371,7 +371,7 @@ class ProtoBufMixin(models.Model,metaclass=Metacls):
 
         class PBCompatibleModel(ProtoBufMixin):
 
-            def _repeated_to_m2m(self, dj_field, _pb_repeated_set):
+            def _protobuf_to_m2m(self, dj_field, _pb_repeated_set):
                 with transaction.atomic():
                     for item in _pb_repeated_set:
                         dj_field.get_or_create(pk=item.pk, defaults={....})
