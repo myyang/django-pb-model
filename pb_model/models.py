@@ -5,7 +5,6 @@ import logging
 
 from django.db import models
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from google.protobuf.descriptor import FieldDescriptor
 
 from . import fields
