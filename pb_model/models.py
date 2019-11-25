@@ -195,6 +195,40 @@ class ProtoBufMixin(models.Model,metaclass=Metacls):
     """
     class Meta:
         abstract = True
+    pb_auto_field_type_mapping = {
+        FieldDescriptor.TYPE_DOUBLE: models.FloatField,
+        FieldDescriptor.TYPE_FLOAT: models.FloatField,
+        FieldDescriptor.TYPE_INT64: models.BigIntegerField,
+        FieldDescriptor.TYPE_UINT64: models.BigIntegerField,
+        FieldDescriptor.TYPE_INT32: models.IntegerField,
+        FieldDescriptor.TYPE_FIXED64: models.DecimalField,
+        FieldDescriptor.TYPE_FIXED32: models.DecimalField,
+        FieldDescriptor.TYPE_BOOL: models.NullBooleanField,
+        FieldDescriptor.TYPE_STRING: models.TextField,
+        FieldDescriptor.TYPE_BYTES: models.BinaryField,
+        FieldDescriptor.TYPE_UINT32: models.PositiveIntegerField,
+        FieldDescriptor.TYPE_ENUM: models.IntegerField,
+        FieldDescriptor.TYPE_SFIXED32: models.DecimalField,
+        FieldDescriptor.TYPE_SFIXED64: models.DecimalField,
+        FieldDescriptor.TYPE_SINT32: models.IntegerField,
+        FieldDescriptor.TYPE_SINT64: models.BigIntegerField,
+        fields.PB_FIELD_TYPE_TIMESTAMP: models.DateTimeField,
+        fields.PB_FIELD_TYPE_REPEATED: fields.ArrayField,
+        fields.PB_FIELD_TYPE_MAP: fields.MapField,
+        fields.PB_FIELD_TYPE_MESSAGE: models.ForeignKey,
+        fields.PB_FIELD_TYPE_REPEATED_MESSAGE: fields.RepeatedMessageField,
+        fields.PB_FIELD_TYPE_MESSAGE_MAP: fields.MessageMapField,
+    }  # pb field type in key, dj field type in value
+    """
+    {ProtoBuf-field-name: Django-field-name} key-value pair mapping to handle
+    schema migration or any model changes.
+    """
+    pb_2_dj_field_serializers = {
+        models.DateTimeField: (fields._datetimefield_to_pb,
+                               fields._datetimefield_from_pb),
+        models.UUIDField: (fields._uuid_to_pb,
+                           fields._uuid_from_pb),
+    }  # dj field in key, serializer function pairs in value
 
     def __init__(self, *args, **kwargs):
         super(ProtoBufMixin, self).__init__(*args, **kwargs)
