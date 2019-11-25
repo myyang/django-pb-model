@@ -9,19 +9,19 @@ from pb_model.models import ProtoBufMixin
 from . import models_pb2
 
 
-class Relation(ProtoBufMixin, models.Model):
+class Relation(ProtoBufMixin):
     pb_model = models_pb2.Relation
 
     num = models.IntegerField(default=0)
 
 
-class M2MRelation(ProtoBufMixin, models.Model):
+class M2MRelation(ProtoBufMixin):
     pb_model = models_pb2.M2MRelation
 
     num = models.IntegerField(default=0)
 
 
-class Main(ProtoBufMixin, models.Model):
+class Main(ProtoBufMixin):
     pb_model = models_pb2.Main
 
     string_field = models.CharField(max_length=32)
@@ -43,22 +43,22 @@ class Main(ProtoBufMixin, models.Model):
     m2m_field = models.ManyToManyField(M2MRelation)
 
 
-class Embedded(ProtoBufMixin, models.Model):
+class Embedded(ProtoBufMixin):
     pb_model = models_pb2.Root.Embedded
     pb_2_dj_fields = '__all__'
 
 
-class ListWrapper(ProtoBufMixin, models.Model):
+class ListWrapper(ProtoBufMixin):
     pb_model = models_pb2.Root.ListWrapper
     pb_2_dj_fields = '__all__'
 
 
-class MapWrapper(ProtoBufMixin, models.Model):
+class MapWrapper(ProtoBufMixin):
     pb_model = models_pb2.Root.MapWrapper
     pb_2_dj_fields = '__all__'
 
 
-class Root(ProtoBufMixin, models.Model):
+class Root(ProtoBufMixin):
     pb_model = models_pb2.Root
     pb_2_dj_fields = '__all__'
     pb_2_dj_field_map = {'uint32_field': 'uint32_field_renamed'}
