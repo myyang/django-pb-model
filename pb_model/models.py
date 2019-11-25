@@ -202,6 +202,12 @@ class ProtoBufMixin(models.Model,metaclass=Metacls):
                 m2m_field.load(self)
         # TODO: also object.update
 
+    def clean(self):
+        super(ProtoBufMixin, self).clean()
+        fail_list = [sum ([getattr(self, field.name) is None for field in oneof.fields]) == (len(oneof.fields) -1) for oneof in self.pb_model.DESCRIPTOR.oneofs ]
+        if not all (fail_list):
+            raise ValidationError("only one of %s fields must has value"%', '.join([field.name for field in self.pb_model.DESCRIPTOR.oneofs[fail_list.index(False)].fields ]))
+
     def save(self, *args, **kwargs):
         super(ProtoBufMixin, self).save(*args, **kwargs)
         for m2m_field in self._meta.many_to_many:
