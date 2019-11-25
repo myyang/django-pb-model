@@ -80,7 +80,7 @@ class ProtoBufConvertingTest(TestCase):
         assert main_item.to_pb() == main_item2.to_pb()
 
     def test_inheritance(self):
-        class Parent(ProtoBufMixin, dj_models.Model):
+        class Parent(ProtoBufMixin):
             pb_model = models_pb2.Root
             pb_2_dj_fields = ['uint32_field']
             pb_2_dj_field_map = {'uint32_field': 'uint32_field_renamed'}
