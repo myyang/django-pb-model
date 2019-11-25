@@ -5,6 +5,7 @@ import logging
 
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from google.protobuf.descriptor import FieldDescriptor
 
 from . import fields
@@ -94,7 +95,7 @@ class Metacls(models.base.ModelBase):
         :return: Django field.
         """
         field_type = PB_AUTO_FIELD_TYPE_MAPPING[type_]
-        return field_type(null=True)
+        return field_type(null=True, blank=True)
 
     @staticmethod
     def _create_timestamp_field():
@@ -109,12 +110,12 @@ class Metacls(models.base.ModelBase):
     @staticmethod
     def _create_repeated_field():
         field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_REPEATED]
-        return field_type()
+        return field_type(blank=True)
 
     @staticmethod
     def _create_message_field(own_type, related_type, field_name):
         field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_MESSAGE]
-        return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name), on_delete=models.deletion.CASCADE, null=True)
+        return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name), on_delete=models.deletion.CASCADE, null=True, blank=True)
 
     @staticmethod
     def _create_repeated_message_field(own_type, related_type, field_name):
@@ -207,7 +208,7 @@ class ProtoBufMixin(models.Model,metaclass=Metacls):
         fail_list = [sum ([getattr(self, field.name) is None for field in oneof.fields]) == (len(oneof.fields) -1) for oneof in self.pb_model.DESCRIPTOR.oneofs ]
         if not all (fail_list):
             raise ValidationError("only one of %s fields must has value"%', '.join([field.name for field in self.pb_model.DESCRIPTOR.oneofs[fail_list.index(False)].fields ]))
-
+    
     def save(self, *args, **kwargs):
         super(ProtoBufMixin, self).save(*args, **kwargs)
         for m2m_field in self._meta.many_to_many:
@@ -337,6 +338,7 @@ class ProtoBufMixin(models.Model,metaclass=Metacls):
                     continue
             self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
         LOGGER.info("Coveretd Django model instance: {}".format(self))
+        self.save()
         return self
 
     def _protobuf_to_relation(self, dj_field_name, dj_field, pb_field,
