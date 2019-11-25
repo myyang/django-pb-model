@@ -12,18 +12,20 @@ from . import models_pb2
 class Relation(ProtoBufMixin):
     pb_model = models_pb2.Relation
 
+    id = models.IntegerField(primary_key=True)
     num = models.IntegerField(default=0)
 
 
 class M2MRelation(ProtoBufMixin):
     pb_model = models_pb2.M2MRelation
-
+    id = models.IntegerField(primary_key=True)
     num = models.IntegerField(default=0)
 
 
 class Main(ProtoBufMixin):
     pb_model = models_pb2.Main
 
+    id = models.IntegerField(primary_key=True)
     string_field = models.CharField(max_length=32)
     integer_field = models.IntegerField()
     float_field = models.FloatField()
