@@ -17,34 +17,6 @@ LOGGER.setLevel(logging.WARNING)
 if settings.DEBUG:
     LOGGER.setLevel(logging.DEBUG)
 
-PB_AUTO_FIELD_TYPE_MAPPING = {
-    FieldDescriptor.TYPE_DOUBLE: models.FloatField,
-    FieldDescriptor.TYPE_FLOAT: models.FloatField,
-    FieldDescriptor.TYPE_INT64: models.BigIntegerField,
-    FieldDescriptor.TYPE_UINT64: models.BigIntegerField,
-    FieldDescriptor.TYPE_INT32: models.IntegerField,
-    FieldDescriptor.TYPE_FIXED64: models.DecimalField,
-    FieldDescriptor.TYPE_FIXED32: models.DecimalField,
-    FieldDescriptor.TYPE_BOOL: models.NullBooleanField,
-    FieldDescriptor.TYPE_STRING: models.TextField,
-    FieldDescriptor.TYPE_BYTES: models.BinaryField,
-    FieldDescriptor.TYPE_UINT32: models.PositiveIntegerField,
-    FieldDescriptor.TYPE_ENUM: models.IntegerField,
-    FieldDescriptor.TYPE_SFIXED32: models.DecimalField,
-    FieldDescriptor.TYPE_SFIXED64: models.DecimalField,
-    FieldDescriptor.TYPE_SINT32: models.IntegerField,
-    FieldDescriptor.TYPE_SINT64: models.BigIntegerField,
-    fields.PB_FIELD_TYPE_TIMESTAMP: models.DateTimeField,
-    fields.PB_FIELD_TYPE_REPEATED: fields.ArrayField,
-    fields.PB_FIELD_TYPE_MAP: fields.MapField,
-    fields.PB_FIELD_TYPE_MESSAGE: models.ForeignKey,
-    fields.PB_FIELD_TYPE_REPEATED_MESSAGE: fields.RepeatedMessageField,
-    fields.PB_FIELD_TYPE_MESSAGE_MAP: fields.MessageMapField,
-}  # pb field type in key, dj field type in value
-"""
-{ProtoBuf-field-name: Django-field-name} key-value pair mapping to handle
-schema migration or any model changes.
-"""
 
 class DjangoPBModelError(Exception):
     pass
@@ -88,37 +60,37 @@ class Metacls(models.base.ModelBase):
         return Metacls._is_map_field(field_descriptor) and Metacls._is_message_field(field_descriptor.message_type.fields_by_name['value'])
 
     @staticmethod
-    def _create_generic_field(type_):
+    def _create_generic_field(pb_auto_field_type_mapping, type_):
         """
-        Creates a django field of the type that is defined in `PB_AUTO_FIELD_TYPE_MAPPING`.
+        Creates a django field of the type that is defined in `pb_auto_field_type_mapping`.
         :param type_: Protobuf field type.
         :return: Django field.
         """
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[type_]
+        field_type = pb_auto_field_type_mapping[type_]
         return field_type(null=True, blank=True)
 
     @staticmethod
-    def _create_timestamp_field():
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_TIMESTAMP]
+    def _create_timestamp_field(pb_auto_field_type_mapping):
+        field_type = pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_TIMESTAMP]
         return field_type()
 
     @staticmethod
-    def _create_map_field():
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_MAP]
+    def _create_map_field(pb_auto_field_type_mapping):
+        field_type = pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MAP]
         return field_type()
 
     @staticmethod
-    def _create_repeated_field():
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_REPEATED]
+    def _create_repeated_field(pb_auto_field_type_mapping):
+        field_type = pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_REPEATED]
         return field_type(blank=True)
 
     @staticmethod
-    def _create_message_field(own_type, related_type, field_name):
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_MESSAGE]
+    def _create_message_field(pb_auto_field_type_mapping, own_type, related_type, field_name):
+        field_type = pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE]
         return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name), on_delete=models.deletion.CASCADE, null=True, blank=True)
 
     @staticmethod
-    def _create_repeated_message_field(own_type, related_type, field_name):
+    def _create_repeated_message_field(pb_auto_field_type_mapping, own_type, related_type, field_name):
         """
         Creates a django relation that mimics a repeated message field.
         :param own_type: Name of the message that contains this field.
@@ -126,11 +98,11 @@ class Metacls(models.base.ModelBase):
         :param field_name: Name of the created field.
         :return: RepeatedMessageField
         """
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_REPEATED_MESSAGE]
+        field_type = pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_REPEATED_MESSAGE]
         return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name))
 
     @staticmethod
-    def _create_message_map_field(own_type, related_type, field_name):
+    def _create_message_map_field(pb_auto_field_type_mapping, own_type, related_type, field_name):
         """
         Creates a django relation that mimics a scalar to message map field.
         :param own_type: Name of the message that contains this field.
@@ -138,28 +110,28 @@ class Metacls(models.base.ModelBase):
         :param field_name: Name of the created field.
         :return: MapToMessageField
         """
-        field_type = PB_AUTO_FIELD_TYPE_MAPPING[fields.PB_FIELD_TYPE_MESSAGE_MAP]
+        field_type = pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE_MAP]
         return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name))
 
-    def _create_field(self, message_field):
+    def _create_field(self, pb_auto_field_type_mapping, message_field):
         message_field_type = message_field.type
 
         if Metacls._is_message_map_field(message_field):
             mapped_message = message_field.message_type.fields_by_name['value'].message_type
-            return self._create_message_map_field(message_field.containing_type.name, mapped_message.name, message_field.name)
+            return self._create_message_map_field(pb_auto_field_type_mapping, message_field.containing_type.name, mapped_message.name, message_field.name)
         elif Metacls._is_map_field(message_field):
-            return self._create_map_field()
+            return self._create_map_field(pb_auto_field_type_mapping)
         elif Metacls._is_repeated_message_field(message_field):
-            return self._create_repeated_message_field(message_field.containing_type.name, message_field.message_type.name, message_field.name)
+            return self._create_repeated_message_field(pb_auto_field_type_mapping, message_field.containing_type.name, message_field.message_type.name, message_field.name)
         elif Metacls._is_repeated_field(message_field):
-            return self._create_repeated_field()
+            return self._create_repeated_field(pb_auto_field_type_mapping)
         elif Metacls._is_message_field(message_field):
             if message_field.message_type.name == 'Timestamp':
-                return self._create_timestamp_field()
+                return self._create_timestamp_field(pb_auto_field_type_mapping)
             else:
-                return self._create_message_field(message_field.containing_type.name, message_field.message_type.name, message_field.name)
+                return self._create_message_field(pb_auto_field_type_mapping, message_field.containing_type.name, message_field.message_type.name, message_field.name)
         else:
-            return self._create_generic_field(message_field_type)
+            return self._create_generic_field(pb_auto_field_type_mapping, message_field_type)
 
     def __new__(self, name, bases, attrs):
 
@@ -168,11 +140,45 @@ class Metacls(models.base.ModelBase):
             # attrs['pb_2_dj_fields'] == '__all__':
                 attrs['pb_2_dj_fields'] = attrs['pb_model'].DESCRIPTOR.fields_by_name.keys()
             attrs.setdefault('pb_2_dj_field_map',{})
+            attrs.setdefault('pb_auto_field_type_mapping' , {
+                FieldDescriptor.TYPE_DOUBLE: models.FloatField,
+                FieldDescriptor.TYPE_FLOAT: models.FloatField,
+                FieldDescriptor.TYPE_INT64: models.BigIntegerField,
+                FieldDescriptor.TYPE_UINT64: models.BigIntegerField,
+                FieldDescriptor.TYPE_INT32: models.IntegerField,
+                FieldDescriptor.TYPE_FIXED64: models.DecimalField,
+                FieldDescriptor.TYPE_FIXED32: models.DecimalField,
+                FieldDescriptor.TYPE_BOOL: models.NullBooleanField,
+                FieldDescriptor.TYPE_STRING: models.TextField,
+                FieldDescriptor.TYPE_BYTES: models.BinaryField,
+                FieldDescriptor.TYPE_UINT32: models.PositiveIntegerField,
+                FieldDescriptor.TYPE_ENUM: models.IntegerField,
+                FieldDescriptor.TYPE_SFIXED32: models.DecimalField,
+                FieldDescriptor.TYPE_SFIXED64: models.DecimalField,
+                FieldDescriptor.TYPE_SINT32: models.IntegerField,
+                FieldDescriptor.TYPE_SINT64: models.BigIntegerField,
+                fields.PB_FIELD_TYPE_TIMESTAMP: models.DateTimeField,
+                fields.PB_FIELD_TYPE_REPEATED: fields.ArrayField,
+                fields.PB_FIELD_TYPE_MAP: fields.MapField,
+                fields.PB_FIELD_TYPE_MESSAGE: models.ForeignKey,
+                fields.PB_FIELD_TYPE_REPEATED_MESSAGE: fields.RepeatedMessageField,
+                fields.PB_FIELD_TYPE_MESSAGE_MAP: fields.MessageMapField,
+            })  # pb field type in key, dj field type in value
+            """
+            {ProtoBuf-field-name: Django-field-name} key-value pair mapping to handle
+            schema migration or any model changes.
+            """
+            attrs.setdefault('pb_2_dj_field_serializers' , {
+                models.DateTimeField: (fields._datetimefield_to_pb,
+                                       fields._datetimefield_from_pb),
+                models.UUIDField: (fields._uuid_to_pb,
+                                   fields._uuid_from_pb),
+            })  # dj field in key, serializer function pairs in value
             for pb_field_name in attrs['pb_2_dj_fields']:
                 pb_field_descriptor = attrs['pb_model'].DESCRIPTOR.fields_by_name[pb_field_name]
                 dj_field_name = attrs['pb_2_dj_field_map'].get(pb_field_name, pb_field_name)
                 if dj_field_name not in attrs:
-                    field = self._create_field(self, pb_field_descriptor)
+                    field = self._create_field(self, attrs['pb_auto_field_type_mapping'], pb_field_descriptor)
                     if field is not None:
                         attrs[dj_field_name] = field
 
@@ -189,12 +195,6 @@ class ProtoBufMixin(models.Model,metaclass=Metacls):
     """
     class Meta:
         abstract = True
-    pb_2_dj_field_serializers = {
-        models.DateTimeField: (fields._datetimefield_to_pb,
-                               fields._datetimefield_from_pb),
-        models.UUIDField: (fields._uuid_to_pb,
-                           fields._uuid_from_pb),
-    }  # dj field in key, serializer function pairs in value
 
     def __init__(self, *args, **kwargs):
         super(ProtoBufMixin, self).__init__(*args, **kwargs)
