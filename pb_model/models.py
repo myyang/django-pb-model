@@ -147,7 +147,7 @@ class Meta(type(models.Model)):
         return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name))
 
 
-class ProtoBufMixin(six.with_metaclass(Meta, object)):
+class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
     """This is mixin for model.Model.
     By setting attribute ``pb_model``, you can specify target ProtoBuf Message
     to handle django model.
@@ -155,6 +155,8 @@ class ProtoBufMixin(six.with_metaclass(Meta, object)):
     By settings attribute ``pb_2_dj_field_map``, you can mapping field from
     ProtoBuf to Django to handle schema migrations and message field chnages
     """
+    class Meta:
+        abstract = True
 
     pb_model = None
     pb_2_dj_fields = []  # list of pb field names that are mapped, special case pb_2_dj_fields = '__all__'
