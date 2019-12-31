@@ -16,7 +16,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-pb-model',
-    version='0.1.8',
+    version='0.1.9',
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
@@ -26,7 +26,7 @@ setup(
     author='myyang',
     author_email='ymy1019@gmail.com',
     install_requires=[
-        'django>=1.11,<=2.2',
+        'django>=1.11',
         'protobuf>=3.1',
     ],
     classifiers=[
