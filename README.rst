@@ -131,7 +131,7 @@ Now you can interact with your protobuf model, add ``ProtoBufMixin`` to your mod
             return "Username: {a.email}, nickname: {a.nickname}".format(a=self)
 
 
-By above settings, you can covert between django model and protobuf easily. For example:
+By above settings, you can convert between django model and protobuf easily. For example:
 
 .. code:: python
 
@@ -161,7 +161,7 @@ If you don't want to manually specify fields in your django model, you can list 
 
 Alternatively if you want all protobuf fields to be mapped you can do ``pb_2_dj_fields = '__all__'``.
 
-Fields listed in ``pb_2_dj_fields`` can be overwritten using manuall definition.
+Fields listed in ``pb_2_dj_fields`` can be overwritten using manual definition.
 
 .. code:: python
 
@@ -399,4 +399,4 @@ Timezone
 """"""""
 
 Note that if you use ``USE_TZ`` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
-And coverted to default timezone in django according to settings.
+And converted to default timezone in django according to settings.
