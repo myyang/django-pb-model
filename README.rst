@@ -6,6 +6,7 @@ django-pb-model
 
 .. image:: https://img.shields.io/pypi/v/django-pb-model.svg
        :target: https://pypi.python.org/pypi/django-pb-model
+.. image:: https://coveralls.io/repos/myyang/django-pb-model/badge.svg?service=github :target: https://coveralls.io/github/myyang/django-pb-model
 
 
 Django-pb-model provides model mixin mapping/converting protobuf message.
@@ -25,14 +26,42 @@ You could examine testcases_ for more details
 
 And PRs are always welcome :))
 
+Table of Content
+------------------------
+
+  * Compatibility_
+  * Install_
+  * Usage_
+  * `Automatic field generation`_
+  * `Field details`_
+
+    * `Field name mapping`_
+    * `Foreign Key`_
+    * `Many-to-Many field`_
+
+      * `Django to Protobuf`_
+      * `Protobuf to Django`_
+
+    * `Datetime Field`_
+    * `Custom Fields`_
+
+      * Timezone_
 
 Compatibility
 -------------
 
 Currently tested with metrics:
 
-* Python2.7, 3.4, 3.5, 3.6, 3.7
-* Django1.11, 2.0, 2.1, 2.2
++---------------+-----+-----+-----+-----+-----+
+| Django/Python | 2.7 | 3.5 | 3.6 | 3.7 | 3.8 |
++---------------+-----+-----+-----+-----+-----+
+| 1.11.x        |  v  |     |     |     |     |
++---------------+-----+-----+-----+-----+-----+
+| 2.2.x         |     |  v  |  v  |  v  |     |
++---------------+-----+-----+-----+-----+-----+
+| 3.0.x         |     |     |  v  |  v  |  v  |
++---------------+-----+-----+-----+-----+-----+
+
 
 Install
 -------
@@ -102,7 +131,7 @@ Now you can interact with your protobuf model, add ``ProtoBufMixin`` to your mod
             return "Username: {a.email}, nickname: {a.nickname}".format(a=self)
 
 
-By above settings, you can covert between django model and protobuf easily. For example:
+By above settings, you can convert between django model and protobuf easily. For example:
 
 .. code:: python
 
@@ -132,7 +161,7 @@ If you don't want to manually specify fields in your django model, you can list 
 
 Alternatively if you want all protobuf fields to be mapped you can do ``pb_2_dj_fields = '__all__'``.
 
-Fields listed in ``pb_2_dj_fields`` can be overwritten using manuall definition.
+Fields listed in ``pb_2_dj_fields`` can be overwritten using manual definition.
 
 .. code:: python
 
@@ -370,4 +399,4 @@ Timezone
 """"""""
 
 Note that if you use ``USE_TZ`` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
-And coverted to default timezone in django according to settings.
+And converted to default timezone in django according to settings.
