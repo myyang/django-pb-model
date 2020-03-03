@@ -196,6 +196,10 @@ class RepeatedMessageField(models.ManyToManyField, ProtoBufFieldMixin):
 
 
 class RepeatedForeignField(JSONField):
+    """
+    This is an naive proxy field for JSONField to support types cannot
+    easily extend with protobuf support.
+    """
     pass
 
 class MessageMapField(models.ManyToManyField, ProtoBufFieldMixin):
