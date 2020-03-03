@@ -72,6 +72,9 @@ message Root {
     MapWrapper map_field_option                     = 21;
   }
 
+  repeated int32 foreign_field                      = 30;
+
+
   message Embedded {
     int32 data                                      = 1;
   }
