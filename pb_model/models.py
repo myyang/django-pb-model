@@ -251,25 +251,25 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
                 self._to_proto_recursively(getattr(_pb_obj, _pb_field.name), _dj_field_name, _dj_fields)
             else:
                 _field = _pb_obj.DESCRIPTOR.fields_by_name[_pb_field.name]
-                self._to_pb(_dj_field_name=_dj_field_name, _field=_field, _pb_obj=_pb_obj, _dj_fields=_dj_fields, _dj_pb_field_map=_pb_dj_field_map)
+                self._to_pb(_dj_field_name, _field, _pb_obj, _dj_fields, _pb_dj_field_map)
 
     def to_pb(self):
         """Convert django model to protobuf instance by pre-defined name
 
         :returns: ProtoBuf instance
         """
-        pb_model = self.pb_model()
+        _pb_obj = self.pb_model()
 
         # Mapping from proto field to Django field
-        django_field_map = self.pb_2_dj_field_map
+        _pb_to_dj_mapping = self.pb_2_dj_field_map
 
         # Flat list of all Django fields
-        django_fields = {f.name: f for f in self._meta.get_fields()}
+        _dj_fields = {f.name: f for f in self._meta.get_fields()}
 
-        self._to_proto_recursively(pb_model, django_field_map, django_fields)
+        self._to_proto_recursively(_pb_obj, _pb_to_dj_mapping, _dj_fields)
 
-        LOGGER.info("Converted Protobuf object: {}".format(pb_model))
-        return pb_model
+        LOGGER.info("Converted Protobuf object: {}".format(_pb_obj))
+        return _pb_obj
 
     def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type, dj_field_value):
         """Handling relation to protobuf
