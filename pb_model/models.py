@@ -219,13 +219,14 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         kwargs['force_insert'] = False
         super(ProtoBufMixin, self).save(*args, **kwargs)
 
-    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields):
-        if _dj_field_name not in _dj_fields:
-            LOGGER.warning("No such django field: {}".format(_dj_field_name))
+    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields, _dj_pb_field_map):
+        _dj_f_name = _dj_pb_field_map.get(_dj_field_name, _dj_field_name)
+        if _dj_f_name not in _dj_fields:
+            LOGGER.warning("No such django field: {}".format(_dj_f_name))
             return
         try:
-            _dj_f_value = getattr(self, _dj_field_name)
-            _dj_f_type = _dj_fields[_dj_field_name]
+            _dj_f_value = getattr(self, _dj_f_name)
+            _dj_f_type = _dj_fields[_dj_f_name]
             if _dj_f_type.null and _dj_f_value is None:
                 return
 
@@ -239,17 +240,18 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
                 else:
                     self._value_to_protobuf(_pb_obj, _field, type(_dj_f_type), _dj_f_value)
         except AttributeError as e:
-            LOGGER.error("Fail to serialize field: {} for {}. Error: {}".format(_dj_field_name, self._meta.model, e))
+            LOGGER.error("Fail to serialize field: {} for {}. Error: {}".format(_dj_f_name, self._meta.model, e))
             raise DjangoPBModelError(
-                "Can't serialize Model({})'s field: {}. Err: {}".format(_dj_field_name, self._meta.model, e))
+                "Can't serialize Model({})'s field: {}. Err: {}".format(_dj_f_name, self._meta.model, e))
 
-    def _to_proto_recursively(self, _pb_obj, _dj_pb_field_map, _dj_fields):
-        for k, v in _dj_pb_field_map.items():
-            if isinstance(v, dict):
-                self._to_proto_recursively(getattr(_pb_obj, k), v, _dj_fields)
+    def _to_proto_recursively(self, _pb_obj, _pb_dj_field_map, _dj_fields):
+        for _pb_field in _pb_obj.DESCRIPTOR.fields:
+            _dj_field_name = _pb_dj_field_map.get(_pb_field.name, _pb_field.name)
+            if isinstance(_dj_field_name, dict):
+                self._to_proto_recursively(getattr(_pb_obj, _pb_field.name), _dj_field_name, _dj_fields)
             else:
-                self._to_pb(_dj_field_name=v, _field=_pb_obj.DESCRIPTOR.fields_by_name.get(k),
-                            _pb_obj=_pb_obj, _dj_fields=_dj_fields)
+                _field = _pb_obj.DESCRIPTOR.fields_by_name[_pb_field.name]
+                self._to_pb(_dj_field_name=_dj_field_name, _field=_field, _pb_obj=_pb_obj, _dj_fields=_dj_fields, _dj_pb_field_map=_pb_dj_field_map)
 
     def to_pb(self):
         """Convert django model to protobuf instance by pre-defined name
