@@ -174,7 +174,14 @@ class ProtoBufConvertingTest(TestCase):
             repeated_message_field=[models_pb2.Root.Embedded(data=123), models_pb2.Root.Embedded(data=456), models_pb2.Root.Embedded(data=789)],
             map_string_to_message_field={'qwe': models_pb2.Root.Embedded(data=123), 'asd': models_pb2.Root.Embedded(data=456)},
 
-            list_field_option=models_pb2.Root.ListWrapper(data=['qwe', 'asd', 'zxc'])
+            list_field_option=models_pb2.Root.ListWrapper(data=['qwe', 'asd', 'zxc']),
+
+            inlineField=models_pb2.Root.InlineEmbedding(
+                data="qwerty",
+                doublyNestedField=models_pb2.Root.InlineEmbedding.NestedEmbedding(
+                    data="qqwwee",
+                ),
+            ),
         )
 
         dj_object = models.Root()
