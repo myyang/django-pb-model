@@ -38,7 +38,7 @@ class Meta(type(models.Model)):
             for pb_field_name in self.pb_2_dj_fields:
                 pb_field_descriptor = self.pb_model.DESCRIPTOR.fields_by_name[pb_field_name]
                 dj_field_name = self.pb_2_dj_field_map.get(pb_field_name, pb_field_name)
-                if dj_field_name not in attrs:
+                if not isinstance(dj_field_name, dict) and dj_field_name not in attrs:
                     field = self._create_field(pb_field_descriptor)
                     if field is not None:
                         field.contribute_to_class(self, dj_field_name)
@@ -361,23 +361,36 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         :returns: Django model instance
         """
         _dj_field_map = {f.name: f for f in self._meta.get_fields()}
-        LOGGER.debug("ListFields() return fields which contains value only")
-        for _f, _v in _pb_obj.ListFields():
-            _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
-            _dj_f_type = _dj_field_map[_dj_f_name]
+        _pb_dj_field_map = self.pb_2_dj_field_map
+        LOGGER.debug("ListFields() returns only fields which contain a value")
+        self._from_pb_recursively(_dj_field_map, _pb_obj, _pb_dj_field_map)
 
-            field_serializers = self._get_serializers(type(_dj_f_type), _f)
-            if field_serializers and field_serializers != self.default_serializers:
-                self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
-
-            if _f.message_type is not None:
-                dj_field = _dj_field_map[_dj_f_name]
-                if dj_field.is_relation and not issubclass(type(dj_field), fields.ProtoBufFieldMixin):
-                    self._protobuf_to_relation(_dj_f_name, dj_field, _f, _v)
-                    continue
-            self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
-        LOGGER.info("Coveretd Django model instance: {}".format(self))
+        LOGGER.info("Converted Django model instance: {}".format(self))
         return self
+
+    def _from_pb_recursively(self, _dj_field_map, _pb_obj, _pb_dj_field_map):
+        # ListFields only returns fields with values
+        for _f, _v in _pb_obj.ListFields():
+            _dj_field_name = _pb_dj_field_map.get(_f.name)
+            if hasattr(_v, "DESCRIPTOR") and _dj_field_name is not None:
+                self._from_pb_recursively(_dj_field_map, _v, _dj_field_name)
+            else:
+                _dj_f_name = _dj_field_name if _dj_field_name is not None else _f.name
+                self._from_pb(_dj_field_map, _f, _v, _dj_f_name)
+
+    def _from_pb(self, _dj_field_map, _f, _v, _dj_f_name):
+        _dj_f_type = _dj_field_map[_dj_f_name]
+
+        field_serializers = self._get_serializers(type(_dj_f_type), _f)
+        if field_serializers and field_serializers != self.default_serializers:
+            self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
+
+        if _f.message_type is not None:
+            dj_field = _dj_field_map[_dj_f_name]
+            if dj_field.is_relation and not issubclass(type(dj_field), fields.ProtoBufFieldMixin):
+                self._protobuf_to_relation(_dj_f_name, dj_field, _f, _v)
+                return
+        self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
 
     def _protobuf_to_relation(self, dj_field_name, dj_field, pb_field,
                               pb_value):
