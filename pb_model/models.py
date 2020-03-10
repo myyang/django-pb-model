@@ -243,10 +243,10 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
             raise DjangoPBModelError(
                 "Can't serialize Model({})'s field: {}. Err: {}".format(_dj_field_name, self._meta.model, e))
 
-    def _protoify(self, _pb_obj, _dj_pb_field_map, _dj_fields):
+    def _to_proto_recursively(self, _pb_obj, _dj_pb_field_map, _dj_fields):
         for k, v in _dj_pb_field_map.items():
             if isinstance(v, dict):
-                self._protoify(getattr(_pb_obj, k), v, _dj_fields)
+                self._to_proto_recursively(getattr(_pb_obj, k), v, _dj_fields)
             else:
                 self._to_pb(_dj_field_name=v, _field=_pb_obj.DESCRIPTOR.fields_by_name.get(k),
                             _pb_obj=_pb_obj, _dj_fields=_dj_fields)
@@ -264,7 +264,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         # Flat list of all Django fields
         django_fields = {f.name: f for f in self._meta.get_fields()}
 
-        self._protoify(pb_model, django_field_map, django_fields)
+        self._to_proto_recursively(pb_model, django_field_map, django_fields)
 
         LOGGER.info("Converted Protobuf object: {}".format(pb_model))
         return pb_model
