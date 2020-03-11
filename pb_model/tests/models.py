@@ -61,6 +61,16 @@ class MapWrapper(ProtoBufMixin, models.Model):
 class Root(ProtoBufMixin, models.Model):
     pb_model = models_pb2.Root
     pb_2_dj_fields = '__all__'
-    pb_2_dj_field_map = {'uint32_field': 'uint32_field_renamed'}
+    pb_2_dj_field_map = {
+        'uint32_field': 'uint32_field_renamed',
+        'inlineField': {
+            'data': 'inline_field',
+            'doublyNestedField': {
+                'data': 'second_inline_field',
+            }
+        }
+    }
 
     uuid_field = models.UUIDField(null=True)
+    inline_field = models.CharField(max_length=10, null=True)
+    second_inline_field = models.CharField(max_length=10, null=True)

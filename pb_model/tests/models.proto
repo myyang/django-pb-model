@@ -74,6 +74,8 @@ message Root {
 
   repeated int32 foreign_field                      = 30;
 
+  InlineEmbedding inlineField                       = 40;
+
 
   message Embedded {
     int32 data                                      = 1;
@@ -83,5 +85,12 @@ message Root {
   }
   message MapWrapper {
     map<string, string> data                        = 1;
+  }
+  message InlineEmbedding {
+      string data                                   = 1;
+      NestedEmbedding doublyNestedField             = 2;
+      message NestedEmbedding {
+          string data                               = 1;
+      }
   }
 }

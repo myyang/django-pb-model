@@ -11,7 +11,6 @@ from google.protobuf.descriptor import FieldDescriptor
 
 from . import fields
 
-
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.WARNING)
@@ -39,7 +38,7 @@ class Meta(type(models.Model)):
             for pb_field_name in self.pb_2_dj_fields:
                 pb_field_descriptor = self.pb_model.DESCRIPTOR.fields_by_name[pb_field_name]
                 dj_field_name = self.pb_2_dj_field_map.get(pb_field_name, pb_field_name)
-                if dj_field_name not in attrs:
+                if not isinstance(dj_field_name, dict) and dj_field_name not in attrs:
                     field = self._create_field(pb_field_descriptor)
                     if field is not None:
                         field.contribute_to_class(self, dj_field_name)
@@ -49,18 +48,21 @@ class Meta(type(models.Model)):
 
         if Meta._is_message_map_field(message_field):
             mapped_message = message_field.message_type.fields_by_name['value'].message_type
-            return self._create_message_map_field(message_field.containing_type.name, mapped_message.name, message_field.name)
+            return self._create_message_map_field(message_field.containing_type.name, mapped_message.name,
+                                                  message_field.name)
         elif Meta._is_map_field(message_field):
             return self._create_map_field()
         elif Meta._is_repeated_message_field(message_field):
-            return self._create_repeated_message_field(message_field.containing_type.name, message_field.message_type.name, message_field.name)
+            return self._create_repeated_message_field(message_field.containing_type.name,
+                                                       message_field.message_type.name, message_field.name)
         elif Meta._is_repeated_field(message_field):
             return self._create_repeated_field()
         elif Meta._is_message_field(message_field):
             if message_field.message_type.name == 'Timestamp':
                 return self._create_timestamp_field()
             else:
-                return self._create_message_field(message_field.containing_type.name, message_field.message_type.name, message_field.name)
+                return self._create_message_field(message_field.containing_type.name, message_field.message_type.name,
+                                                  message_field.name)
         else:
             return self._create_generic_field(message_field_type)
 
@@ -88,7 +90,8 @@ class Meta(type(models.Model)):
         :param field_descriptor: protobuf field descriptor
         :return: bool
         """
-        return field_descriptor.message_type is not None and set(field_descriptor.message_type.fields_by_name.keys()) == {'key', 'value'}
+        return field_descriptor.message_type is not None and set(
+            field_descriptor.message_type.fields_by_name.keys()) == {'key', 'value'}
 
     @staticmethod
     def _is_message_map_field(field_descriptor):
@@ -97,7 +100,8 @@ class Meta(type(models.Model)):
         :param field_descriptor: protobuf field descriptor
         :return: bool
         """
-        return Meta._is_map_field(field_descriptor) and Meta._is_message_field(field_descriptor.message_type.fields_by_name['value'])
+        return Meta._is_map_field(field_descriptor) and Meta._is_message_field(
+            field_descriptor.message_type.fields_by_name['value'])
 
     def _create_generic_field(self, type_):
         """
@@ -122,7 +126,8 @@ class Meta(type(models.Model)):
 
     def _create_message_field(self, own_type, related_type, field_name):
         field_type = self.pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE]
-        return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name), on_delete=models.deletion.CASCADE, null=True)
+        return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name),
+                          on_delete=models.deletion.CASCADE, null=True)
 
     def _create_repeated_message_field(self, own_type, related_type, field_name):
         """
@@ -153,8 +158,9 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
     to handle django model.
 
     By settings attribute ``pb_2_dj_field_map``, you can mapping field from
-    ProtoBuf to Django to handle schema migrations and message field chnages
+    ProtoBuf to Django to handle schema migrations and message field changes
     """
+
     class Meta:
         abstract = True
 
@@ -213,36 +219,56 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         kwargs['force_insert'] = False
         super(ProtoBufMixin, self).save(*args, **kwargs)
 
+    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields, _dj_pb_field_map):
+        _dj_f_name = _dj_pb_field_map.get(_dj_field_name, _dj_field_name)
+        if _dj_f_name not in _dj_fields:
+            LOGGER.warning("No such django field: {}".format(_dj_f_name))
+            return
+        try:
+            _dj_f_value = getattr(self, _dj_f_name)
+            _dj_f_type = _dj_fields[_dj_f_name]
+            if _dj_f_type.null and _dj_f_value is None:
+                return
+
+            # See if there's a custom serializer for this field relation or not
+            field_serializers = self._get_serializers(type(_dj_f_type), _field)
+            if field_serializers and field_serializers != self.default_serializers:
+                self._value_to_protobuf(_pb_obj, _field, type(_dj_f_type), _dj_f_value)
+            else:
+                if _dj_f_type.is_relation and not issubclass(type(_dj_f_type), fields.ProtoBufFieldMixin):
+                    self._relation_to_protobuf(_pb_obj, _field, _dj_f_type, _dj_f_value)
+                else:
+                    self._value_to_protobuf(_pb_obj, _field, type(_dj_f_type), _dj_f_value)
+        except AttributeError as e:
+            LOGGER.error("Fail to serialize field: {} for {}. Error: {}".format(_dj_f_name, self._meta.model, e))
+            raise DjangoPBModelError(
+                "Can't serialize Model({})'s field: {}. Err: {}".format(_dj_f_name, self._meta.model, e))
+
+    def _to_proto_recursively(self, _pb_obj, _pb_dj_field_map, _dj_fields):
+        for _pb_field in _pb_obj.DESCRIPTOR.fields:
+            _dj_field_name = _pb_dj_field_map.get(_pb_field.name, _pb_field.name)
+            if isinstance(_dj_field_name, dict):
+                self._to_proto_recursively(getattr(_pb_obj, _pb_field.name), _dj_field_name, _dj_fields)
+            else:
+                _field = _pb_obj.DESCRIPTOR.fields_by_name[_pb_field.name]
+                self._to_pb(_dj_field_name, _field, _pb_obj, _dj_fields, _pb_dj_field_map)
+
     def to_pb(self):
         """Convert django model to protobuf instance by pre-defined name
 
         :returns: ProtoBuf instance
         """
         _pb_obj = self.pb_model()
-        _dj_field_map = {f.name: f for f in self._meta.get_fields()}
-        for _f in _pb_obj.DESCRIPTOR.fields:
-            _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
-            if _dj_f_name not in _dj_field_map:
-                LOGGER.warning("No such django field: {}".format(_f.name))
-                continue
-            try:
-                _dj_f_value, _dj_f_type = getattr(self, _dj_f_name), _dj_field_map[_dj_f_name]
-                if not (_dj_f_type.null and _dj_f_value is None):
 
-                    # See if there's a custom serializer for this field relation or not
-                    field_serializers = self._get_serializers(type(_dj_f_type), _f)
-                    if field_serializers and field_serializers != self.default_serializers:
-                        self._value_to_protobuf(_pb_obj, _f, type(_dj_f_type), _dj_f_value)
-                    else:
-                        if _dj_f_type.is_relation and not issubclass(type(_dj_f_type), fields.ProtoBufFieldMixin):
-                            self._relation_to_protobuf(_pb_obj, _f, _dj_f_type, _dj_f_value)
-                        else:
-                            self._value_to_protobuf(_pb_obj, _f, type(_dj_f_type), _dj_f_value)
-            except AttributeError as e:
-                LOGGER.error("Fail to serialize field: {} for {}. Error: {}".format(_dj_f_name, self._meta.model, e))
-                raise DjangoPBModelError("Can't serialize Model({})'s field: {}. Err: {}".format(_dj_f_name, self._meta.model, e))
+        # Mapping from proto field to Django field
+        _pb_to_dj_mapping = self.pb_2_dj_field_map
 
-        LOGGER.info("Coverted Protobuf object: {}".format(_pb_obj))
+        # Flat list of all Django fields
+        _dj_fields = {f.name: f for f in self._meta.get_fields()}
+
+        self._to_proto_recursively(_pb_obj, _pb_to_dj_mapping, _dj_fields)
+
+        LOGGER.info("Converted Protobuf object: {}".format(_pb_obj))
         return _pb_obj
 
     def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type, dj_field_value):
@@ -250,8 +276,8 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
 
         :param pb_obj: protobuf message obj which is return value of to_pb()
         :param pb_field: protobuf message field which is current processing field
-        :param dj_field_type: Currently proecessing django field type
-        :param dj_field_value: Currently proecessing django field value
+        :param dj_field_type: Currently processing Django field type
+        :param dj_field_value: Currently processing Django field value
         :returns: None
 
         """
@@ -278,10 +304,10 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         }
         ```
 
-        If this is not the format you expected, overwite
+        If this is not the format you expected, overwrite
         `_m2m_to_protobuf(self, pb_obj, pb_field, dj_field_value)` by yourself.
 
-        :param pb_obj: intermedia-converting Protobuf obj, which would is return value of to_pb()
+        :param pb_obj: intermediate-converting Protobuf obj, which would is return value of to_pb()
         :param pb_field: the Protobuf message field which supposed to assign after converting
         :param dj_m2mvalue: Django many_to_many field
         :returns: None
@@ -308,7 +334,6 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
                 else:
                     funcs = defaults
 
-
         if len(funcs) != 2:
             LOGGER.warning(
                 "Custom serializers require a pair of functions: {0} is misconfigured".
@@ -322,8 +347,8 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
 
         :param pb_obj: protobuf message obj which is return value of to_pb()
         :param pb_field: protobuf message field which is current processing field
-        :param dj_field_type: Currently proecessing django field type
-        :param dj_field_value: Currently proecessing django field value
+        :param dj_field_type: Currently processing django field type
+        :param dj_field_value: Currently processing django field value
         :returns: None
 
         """
@@ -336,23 +361,36 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         :returns: Django model instance
         """
         _dj_field_map = {f.name: f for f in self._meta.get_fields()}
-        LOGGER.debug("ListFields() return fields which contains value only")
-        for _f, _v in _pb_obj.ListFields():
-            _dj_f_name = self.pb_2_dj_field_map.get(_f.name, _f.name)
-            _dj_f_type = _dj_field_map[_dj_f_name]
+        _pb_dj_field_map = self.pb_2_dj_field_map
+        LOGGER.debug("ListFields() returns only fields which contain a value")
+        self._from_pb_recursively(_dj_field_map, _pb_obj, _pb_dj_field_map)
 
-            field_serializers = self._get_serializers(type(_dj_f_type), _f)
-            if field_serializers and field_serializers != self.default_serializers:
-                self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
-
-            if _f.message_type is not None:
-                dj_field = _dj_field_map[_dj_f_name]
-                if dj_field.is_relation and not issubclass(type(dj_field), fields.ProtoBufFieldMixin):
-                    self._protobuf_to_relation(_dj_f_name, dj_field, _f, _v)
-                    continue
-            self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
-        LOGGER.info("Coveretd Django model instance: {}".format(self))
+        LOGGER.info("Converted Django model instance: {}".format(self))
         return self
+
+    def _from_pb_recursively(self, _dj_field_map, _pb_obj, _pb_dj_field_map):
+        # ListFields only returns fields with values
+        for _f, _v in _pb_obj.ListFields():
+            _dj_field_name = _pb_dj_field_map.get(_f.name)
+            if hasattr(_v, "DESCRIPTOR") and _dj_field_name is not None:
+                self._from_pb_recursively(_dj_field_map, _v, _dj_field_name)
+            else:
+                _dj_f_name = _dj_field_name if _dj_field_name is not None else _f.name
+                self._from_pb(_dj_field_map, _f, _v, _dj_f_name)
+
+    def _from_pb(self, _dj_field_map, _f, _v, _dj_f_name):
+        _dj_f_type = _dj_field_map[_dj_f_name]
+
+        field_serializers = self._get_serializers(type(_dj_f_type), _f)
+        if field_serializers and field_serializers != self.default_serializers:
+            self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
+
+        if _f.message_type is not None:
+            dj_field = _dj_field_map[_dj_f_name]
+            if dj_field.is_relation and not issubclass(type(dj_field), fields.ProtoBufFieldMixin):
+                self._protobuf_to_relation(_dj_f_name, dj_field, _f, _v)
+                return
+        self._protobuf_to_value(_dj_f_name, type(_dj_f_type), _f, _v)
 
     def _protobuf_to_relation(self, dj_field_name, dj_field, pb_field,
                               pb_value):
@@ -379,10 +417,10 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         """
         This is hook function to handle repeated list to m2m field while converting
         from protobuf to django. By default, no operation is performed, which means
-        you may query current relation if your coverted django model instance has a valid PK.
+        you may query current relation if your converted django model instance has a valid PK.
 
-        If you want to modify your database while converting on-the-fly, overwrite
-        logics such as:
+        If you want to modify your database while converting on-the-fly, you may
+        override the logic:
 
         ```
         from django.db import transaction
