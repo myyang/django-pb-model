@@ -3,11 +3,17 @@ package models;
 
 import "google/protobuf/timestamp.proto";
 
+
+message DeeperRelation {
+  int32 id = 1;
+  int32 num = 2;
+}
+
 // Relation model for testing
 message Relation {
     int32 id = 1;
     int32 num = 2;
-
+    DeeperRelation deeper_relation = 3;
 }
 
 message M2MRelation {

@@ -8,11 +8,20 @@ from pb_model.models import ProtoBufMixin
 
 from . import models_pb2
 
+class DeeperRelation(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.DeeperRelation
+
+    num = models.IntegerField(default=0)
+
 
 class Relation(ProtoBufMixin, models.Model):
     pb_model = models_pb2.Relation
 
     num = models.IntegerField(default=0)
+    deeper_relation = models.ForeignKey(DeeperRelation, 
+                                        on_delete=models.DO_NOTHING,
+                                        blank=True,
+                                        null=True)
 
 
 class M2MRelation(ProtoBufMixin, models.Model):
