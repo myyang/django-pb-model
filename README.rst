@@ -42,6 +42,7 @@ Table of Content
       * `Django to Protobuf`_
       * `Protobuf to Django`_
 
+    * `Limit Foreign key or Many-to-Many field conversion depth`_
     * `Datetime Field`_
     * `Custom Fields`_
 
@@ -284,6 +285,61 @@ Django model would be:
 
        m2m = models.ManyToManyField(M2M)
 
+Limit Foreign key or Many-to-Many field conversion depth
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, when to_pb() method is called, all related message will be 
+also converted recursively. 
+
+For example:
+
+.. code:: protobuf
+
+  message DeeperRelation {
+    int32 id = 1;
+    int32 num = 2;
+  }
+
+  // Relation model for testing
+  message Relation {
+      int32 id = 1;
+      int32 num = 2;
+      DeeperRelation deeper_relation = 3;
+  }
+
+  message Main {
+    int32 id = 1;
+    Relation fk_field = 2;
+  }
+
+And code:
+
+.. code:: python
+
+  >>> m = Main.objects.create(fk=Relation.objects.create(
+        deeper_relation=DeeperRelation.objects.create()))
+  >>> m.to_pb()
+  fk {
+    id: 1
+    fk_field {
+      id: 1,
+      deeper_ralation {
+        id: 1
+      }
+    }
+  }
+
+
+This may not be the behavior wanted. The depth parameter can be used to limit 
+the depth of these conversion.
+
+If the depth is set to 0, no related field will be converted, the fk_field in 
+Main message will left unset. 
+
+If the depth is set to any positive number, the level of related field will be
+limited by the specified number. For example, if depth is set to 1, the fk_field
+will contain the related Relation message, however the deeper_relation field 
+of the fk_field message will be unset.
 
 Django to Protobuf
 """"""""""""""""""

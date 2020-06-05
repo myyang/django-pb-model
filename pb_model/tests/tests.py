@@ -202,3 +202,87 @@ class ProtoBufConvertingTest(TestCase):
         assert dj_object_from_db.uint32_field_renamed == pb_object.uint32_field
         result = dj_object_from_db.to_pb()
         assert pb_object == result
+
+    def test_relation_depth_limit(self):
+        deepter_relation_item = models.DeeperRelation.objects.create(num=2)
+        relation_item = models.Relation.objects.create(
+            num=1, deeper_relation=deepter_relation_item)
+        main_item = models.Main.objects.create(
+            string_field='Hello world', integer_field=0,
+            float_field=3.14159, bool_field=True,
+            choices_field=models.Main.OPT2,
+            fk_field=relation_item
+        )
+
+        # Verify all relation is converted when no depth provided.
+        unlimited_main_proto = main_item.to_pb()
+
+        self.assertEqual(unlimited_main_proto.fk_field.id, relation_item.id,
+                         msg="{}(src) != {}(target)".format(
+                         unlimited_main_proto.fk_field.id, relation_item.id))
+        self.assertEqual(unlimited_main_proto.fk_field.num, relation_item.num,
+                         msg="{}(src) != {}(target)".format(
+                         unlimited_main_proto.fk_field.num, relation_item.num))
+        self.assertEqual(unlimited_main_proto.fk_field.deeper_relation.id, 
+                         deepter_relation_item.id,
+                         msg="{}(src) != {}(target)".format(
+                         unlimited_main_proto.fk_field.deeper_relation.id, 
+                         deepter_relation_item.id))
+        self.assertEqual(unlimited_main_proto.fk_field.deeper_relation.num, 
+                         deepter_relation_item.num,
+                         msg="{}(src) != {}(target)".format(
+                         unlimited_main_proto.fk_field.deeper_relation.num, 
+                         deepter_relation_item.num))
+
+
+        # Verify no relation is converted when depth = 0.
+        cap_0_main_proto = main_item.to_pb(depth=0)
+        # proto3 does not support `hasField`, check value not equal instead.
+        self.assertNotEqual(cap_0_main_proto.fk_field.id, 
+                            relation_item.id,
+                            msg="{}(src) == {}(target)".format(
+                                cap_0_main_proto.fk_field.id, 
+                                relation_item.id))
+        self.assertNotEqual(cap_0_main_proto.fk_field.num, 
+                            relation_item.num,
+                            msg="{}(src) == {}(target)".format(
+                                cap_0_main_proto.fk_field.num, 
+                                relation_item.num))
+        self.assertNotEqual(
+            cap_0_main_proto.fk_field.deeper_relation.id, 
+            deepter_relation_item.id,
+            msg="{}(src) == {}(target)".format(
+                cap_0_main_proto.fk_field.deeper_relation.id, 
+                deepter_relation_item.id))
+        self.assertNotEqual(
+            cap_0_main_proto.fk_field.deeper_relation.num, 
+            deepter_relation_item.num,
+            msg="{}(src) == {}(target)".format(
+                cap_0_main_proto.fk_field.deeper_relation.num, 
+                deepter_relation_item.num))
+
+        # Verify only 1 level relation is converted when depth = 1.
+        cap_1_main_proto = main_item.to_pb(depth=1)
+        # proto3 does not support `hasField`, check value not equal instead.
+        self.assertEqual(cap_1_main_proto.fk_field.id, 
+                         relation_item.id,
+                         msg="{}(src) != {}(target)".format(
+                            cap_1_main_proto.fk_field.id, 
+                            relation_item.id))
+        self.assertEqual(cap_1_main_proto.fk_field.num, 
+                         relation_item.num,
+                         msg="{}(src) != {}(target)".format(
+                            cap_1_main_proto.fk_field.num, 
+                            relation_item.num))
+        self.assertNotEqual(
+            cap_1_main_proto.fk_field.deeper_relation.id, 
+            deepter_relation_item.id,
+            msg="{}(src) == {}(target)".format(
+                cap_1_main_proto.fk_field.deeper_relation.id, 
+                deepter_relation_item.id))
+        self.assertNotEqual(
+            cap_1_main_proto.fk_field.deeper_relation.num, 
+            deepter_relation_item.num,
+            msg="{}(src) == {}(target)".format(
+                cap_1_main_proto.fk_field.deeper_relation.num, 
+                deepter_relation_item.num))

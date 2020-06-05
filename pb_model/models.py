@@ -219,7 +219,8 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         kwargs['force_insert'] = False
         super(ProtoBufMixin, self).save(*args, **kwargs)
 
-    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields, _dj_pb_field_map):
+    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields, 
+               _dj_pb_field_map, depth):
         _dj_f_name = _dj_pb_field_map.get(_dj_field_name, _dj_field_name)
         if _dj_f_name not in _dj_fields:
             LOGGER.warning("No such django field: {}".format(_dj_f_name))
@@ -236,7 +237,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
                 self._value_to_protobuf(_pb_obj, _field, type(_dj_f_type), _dj_f_value)
             else:
                 if _dj_f_type.is_relation and not issubclass(type(_dj_f_type), fields.ProtoBufFieldMixin):
-                    self._relation_to_protobuf(_pb_obj, _field, _dj_f_type, _dj_f_value)
+                    self._relation_to_protobuf(_pb_obj, _field, _dj_f_type, _dj_f_value, depth)
                 else:
                     self._value_to_protobuf(_pb_obj, _field, type(_dj_f_type), _dj_f_value)
         except AttributeError as e:
@@ -244,17 +245,23 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
             raise DjangoPBModelError(
                 "Can't serialize Model({})'s field: {}. Err: {}".format(_dj_f_name, self._meta.model, e))
 
-    def _to_proto_recursively(self, _pb_obj, _pb_dj_field_map, _dj_fields):
+    def _to_proto_recursively(self, _pb_obj, _pb_dj_field_map, _dj_fields, 
+                              depth):
         for _pb_field in _pb_obj.DESCRIPTOR.fields:
             _dj_field_name = _pb_dj_field_map.get(_pb_field.name, _pb_field.name)
             if isinstance(_dj_field_name, dict):
-                self._to_proto_recursively(getattr(_pb_obj, _pb_field.name), _dj_field_name, _dj_fields)
+                self._to_proto_recursively(getattr(_pb_obj, _pb_field.name),
+                                           _dj_field_name, _dj_fields, 
+                                           depth=depth)
             else:
                 _field = _pb_obj.DESCRIPTOR.fields_by_name[_pb_field.name]
-                self._to_pb(_dj_field_name, _field, _pb_obj, _dj_fields, _pb_dj_field_map)
+                self._to_pb(_dj_field_name, _field, _pb_obj, _dj_fields, _pb_dj_field_map, depth=depth)
 
-    def to_pb(self):
+    def to_pb(self, depth=None):
         """Convert django model to protobuf instance by pre-defined name
+
+        :param depth: depth of relation been recursively converted. None means
+            unlimited, 0 means no relation will be converted.
 
         :returns: ProtoBuf instance
         """
@@ -266,28 +273,45 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         # Flat list of all Django fields
         _dj_fields = {f.name: f for f in self._meta.get_fields()}
 
-        self._to_proto_recursively(_pb_obj, _pb_to_dj_mapping, _dj_fields)
+        self._to_proto_recursively(_pb_obj, _pb_to_dj_mapping, _dj_fields, depth)
 
-        LOGGER.info("Converted Protobuf object: {}".format(_pb_obj))
+        LOGGER.info("Converted Protobuf [{}]: {}".format(
+            _pb_obj.DESCRIPTOR.full_name, _pb_obj))
         return _pb_obj
 
-    def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type, dj_field_value):
+    def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type, 
+                              dj_field_value, depth):
         """Handling relation to protobuf
 
         :param pb_obj: protobuf message obj which is return value of to_pb()
         :param pb_field: protobuf message field which is current processing field
         :param dj_field_type: Currently processing Django field type
         :param dj_field_value: Currently processing Django field value
+        :param depth: depth of relation been recursively converted. None means
+            unlimited, 0 means no relation will be converted.
         :returns: None
 
         """
-        LOGGER.debug("Django Relation field, recursivly serializing")
-        if dj_field_type.many_to_many:
-            self._m2m_to_protobuf(pb_obj, pb_field, dj_field_value)
+        if depth is None or depth > 0:
+            LOGGER.debug(
+                "Django Relation field '{}', recursively serializing".format(
+                    pb_field.name))
+            if (depth is not None):
+                LOGGER.debug('Current depth: {}'.format(depth))
         else:
-            getattr(pb_obj, pb_field.name).CopyFrom(dj_field_value.to_pb())
+            LOGGER.debug(
+                "Django Relation field '{}', capped by depth, not converting".format(
+                    pb_field.name))
+            return
 
-    def _m2m_to_protobuf(self, pb_obj, pb_field, dj_m2m_field):
+        next_depth = depth-1 if depth is not None else None
+        if dj_field_type.many_to_many:
+            self._m2m_to_protobuf(pb_obj, pb_field, dj_field_value, next_depth)
+        else:
+            getattr(pb_obj, pb_field.name).CopyFrom(dj_field_value.to_pb(
+                depth=next_depth))
+
+    def _m2m_to_protobuf(self, pb_obj, pb_field, dj_m2m_field, next_depth):
         """
         This is hook function from m2m field to protobuf. By default, we assume
         target message field is "repeated" nested message, ex:
@@ -310,11 +334,12 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         :param pb_obj: intermediate-converting Protobuf obj, which would is return value of to_pb()
         :param pb_field: the Protobuf message field which supposed to assign after converting
         :param dj_m2mvalue: Django many_to_many field
+        :param next_depth: the depth limit for the next level
         :returns: None
 
         """
         getattr(pb_obj, pb_field.name).extend(
-            [_m2m.to_pb() for _m2m in dj_m2m_field.all()])
+            [_m2m.to_pb(depth=next_depth) for _m2m in dj_m2m_field.all()])
 
     def _get_serializers(self, dj_field_type, pb_field=None):
         """Getting the correct serializers for a field type
