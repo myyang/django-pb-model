@@ -51,7 +51,7 @@ Table of Content
 Compatibility
 -------------
 
-Currently tested with metrics:
+Currently tested with matrix:
 
 +---------------+-----+-----+-----+-----+-----+
 | Django/Python | 2.7 | 3.5 | 3.6 | 3.7 | 3.8 |
@@ -169,7 +169,7 @@ Fields listed in ``pb_2_dj_fields`` can be overwritten using manual definition.
     class Account(ProtoBufMixin, models.Model):
         pb_model = account_pb2.Account
         pb_2_dj_fields = '__all__'
-        
+
         email = models.EmailField(max_length=64)
 
 
@@ -285,6 +285,39 @@ Django model would be:
 
        m2m = models.ManyToManyField(M2M)
 
+Django to Protobuf
+""""""""""""""""""
+
+If this is not the format you expected, overwrite ``_m2m_to_protobuf()`` of Django model by yourself.
+
+Protobuf to Django
+""""""""""""""""""
+
+Same as previous section, we assume m2m field is repeated value in protobuf.
+By default, **NO** operation is performed, which means
+you may query current relation if your converted django model instance has a valid primary key.
+
+If you want to modify your database while converting on-the-fly, overwrite
+logics such as:
+
+.. code:: python
+
+    from django.db import transaction
+
+    ...
+
+    class PBCompatibleModel(ProtoBufMixin, models.Model):
+
+        def _repeated_to_m2m(self, dj_field, _pb_repeated_set):
+            with transaction.atomic():
+                for item in _pb_repeated_set:
+                    dj_field.get_or_create(pk=item.pk, defaults={....})
+
+        ...
+
+Also, you should write your converting policy if m2m is not nested repeated message in ``_repeated_to_m2m`` method
+
+
 Limit Foreign key or Many-to-Many field conversion depth
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -340,39 +373,6 @@ If the depth is set to any positive number, the level of related field will be
 limited by the specified number. For example, if depth is set to 1, the fk_field
 will contain the related Relation message, however the deeper_relation field 
 of the fk_field message will be unset.
-
-Django to Protobuf
-""""""""""""""""""
-
-If this is not the format you expected, overwrite ``_m2m_to_protobuf()`` of Django model by yourself.
-
-
-Protobuf to Django
-""""""""""""""""""
-
-Same as previous section, we assume m2m field is repeated value in protobuf.
-By default, **NO** operation is performed, which means
-you may query current relation if your converted django model instance has a valid primary key.
-
-If you want to modify your database while converting on-the-fly, overwrite
-logics such as:
-
-.. code:: python
-
-    from django.db import transaction
-
-    ...
-
-    class PBCompatibleModel(ProtoBufMixin, models.Model):
-
-        def _repeated_to_m2m(self, dj_field, _pb_repeated_set):
-            with transaction.atomic():
-                for item in _pb_repeated_set:
-                    dj_field.get_or_create(pk=item.pk, defaults={....})
-
-        ...
-
-Also, you should write your converting policy if m2m is not nested repeated message in ``_repeated_to_m2m`` method
 
 Datetime Field
 ~~~~~~~~~~~~~~
