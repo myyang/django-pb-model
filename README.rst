@@ -257,6 +257,7 @@ With above settings, pb_model would recursively serialize and de-serialize betwe
 Note that one can specify a reversed relation by assign related_name:
 
 .. code:: python
+
   class Relation(ProtoBufMixin, models.Model):
     pb_model = models_pb2.Relation
 
@@ -270,6 +271,7 @@ Note that one can specify a reversed relation by assign related_name:
 When the related proto contains the same field of this reversed relation:
 
 .. code:: Protobuf
+
   message DeeperRelation {
     int32 id = 1;
     int32 num = 2;
