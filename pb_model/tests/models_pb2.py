@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='models',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0cmodels.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\")\n\x0e\x44\x65\x65perRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"T\n\x08Relation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\x12/\n\x0f\x64\x65\x65per_relation\x18\x03 \x01(\x0b\x32\x16.models.DeeperRelation\"&\n\x0bM2MRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"\xc8\x02\n\x04Main\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0cstring_field\x18\x02 \x01(\t\x12\x15\n\rinteger_field\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_field\x18\x04 \x01(\x02\x12+\n\rchoices_field\x18\x05 \x01(\x0e\x32\x14.models.Main.Options\x12\"\n\x08\x66k_field\x18\x06 \x01(\x0b\x32\x10.models.Relation\x12&\n\tm2m_field\x18\x07 \x03(\x0b\x32\x13.models.M2MRelation\x12\x12\n\nbool_field\x18\x08 \x01(\x08\x12\x32\n\x0e\x64\x61tetime_field\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"1\n\x07Options\x12\x08\n\x04OPT0\x10\x00\x12\x08\n\x04OPT1\x10\x01\x12\x08\n\x04OPT2\x10\x02\x12\x08\n\x04OPT3\x10\x03\"\x97\n\n\x04Root\x12\x14\n\x0cuint32_field\x18\x01 \x01(\r\x12\x13\n\x0bint32_field\x18\x02 \x01(\x05\x12\x14\n\x0cuint64_field\x18\x03 \x01(\x04\x12\x13\n\x0bint64_field\x18\x04 \x01(\x03\x12\x13\n\x0b\x66loat_field\x18\x05 \x01(\x02\x12\x14\n\x0c\x64ouble_field\x18\x06 \x01(\x01\x12\x14\n\x0cstring_field\x18\x07 \x01(\t\x12\x13\n\x0b\x62ytes_field\x18\x08 \x01(\x0c\x12\x12\n\nbool_field\x18\t \x01(\x08\x12 \n\nenum_field\x18\n \x01(\x0e\x32\x0c.models.Enum\x12\x33\n\x0ftimestamp_field\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\nuuid_field\x18\x0c \x01(\t\x12\x1d\n\x15repeated_uint32_field\x18\r \x03(\r\x12\x1d\n\x15repeated_string_field\x18\x0e \x03(\t\x12\x1d\n\x15repeated_double_field\x18\x0f \x03(\x01\x12L\n\x1amap_string_to_string_field\x18\x10 \x03(\x0b\x32(.models.Root.MapStringToStringFieldEntry\x12,\n\rmessage_field\x18\x11 \x01(\x0b\x32\x15.models.Root.Embedded\x12\x35\n\x16repeated_message_field\x18\x12 \x03(\x0b\x32\x15.models.Root.Embedded\x12N\n\x1bmap_string_to_message_field\x18\x13 \x03(\x0b\x32).models.Root.MapStringToMessageFieldEntry\x12\x35\n\x11list_field_option\x18\x14 \x01(\x0b\x32\x18.models.Root.ListWrapperH\x00\x12\x33\n\x10map_field_option\x18\x15 \x01(\x0b\x32\x17.models.Root.MapWrapperH\x00\x12\x15\n\rforeign_field\x18\x1e \x03(\x05\x12\x31\n\x0binlineField\x18( \x01(\x0b\x32\x1c.models.Root.InlineEmbedding\x1a=\n\x1bMapStringToStringFieldEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aU\n\x1cMapStringToMessageFieldEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12$\n\x05value\x18\x02 \x01(\x0b\x32\x15.models.Root.Embedded:\x02\x38\x01\x1a\x18\n\x08\x45mbedded\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x05\x1a\x1b\n\x0bListWrapper\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\t\x1aj\n\nMapWrapper\x12/\n\x04\x64\x61ta\x18\x01 \x03(\x0b\x32!.models.Root.MapWrapper.DataEntry\x1a+\n\tDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x89\x01\n\x0fInlineEmbedding\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\x12G\n\x11\x64oublyNestedField\x18\x02 \x01(\x0b\x32,.models.Root.InlineEmbedding.NestedEmbedding\x1a\x1f\n\x0fNestedEmbedding\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\tB\t\n\x07options*3\n\x04\x45num\x12\x0f\n\x0b\x45num_NOTSET\x10\x00\x12\x0c\n\x08\x45num_ONE\x10\x01\x12\x0c\n\x08\x45num_TWO\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n\x0cmodels.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0e\x44\x65\x65perRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\x12#\n\trelations\x18\x03 \x03(\x0b\x32\x10.models.Relation\"T\n\x08Relation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\x12/\n\x0f\x64\x65\x65per_relation\x18\x03 \x01(\x0b\x32\x16.models.DeeperRelation\"&\n\x0bM2MRelation\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0b\n\x03num\x18\x02 \x01(\x05\"\xc8\x02\n\x04Main\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x14\n\x0cstring_field\x18\x02 \x01(\t\x12\x15\n\rinteger_field\x18\x03 \x01(\x05\x12\x13\n\x0b\x66loat_field\x18\x04 \x01(\x02\x12+\n\rchoices_field\x18\x05 \x01(\x0e\x32\x14.models.Main.Options\x12\"\n\x08\x66k_field\x18\x06 \x01(\x0b\x32\x10.models.Relation\x12&\n\tm2m_field\x18\x07 \x03(\x0b\x32\x13.models.M2MRelation\x12\x12\n\nbool_field\x18\x08 \x01(\x08\x12\x32\n\x0e\x64\x61tetime_field\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"1\n\x07Options\x12\x08\n\x04OPT0\x10\x00\x12\x08\n\x04OPT1\x10\x01\x12\x08\n\x04OPT2\x10\x02\x12\x08\n\x04OPT3\x10\x03\"\x97\n\n\x04Root\x12\x14\n\x0cuint32_field\x18\x01 \x01(\r\x12\x13\n\x0bint32_field\x18\x02 \x01(\x05\x12\x14\n\x0cuint64_field\x18\x03 \x01(\x04\x12\x13\n\x0bint64_field\x18\x04 \x01(\x03\x12\x13\n\x0b\x66loat_field\x18\x05 \x01(\x02\x12\x14\n\x0c\x64ouble_field\x18\x06 \x01(\x01\x12\x14\n\x0cstring_field\x18\x07 \x01(\t\x12\x13\n\x0b\x62ytes_field\x18\x08 \x01(\x0c\x12\x12\n\nbool_field\x18\t \x01(\x08\x12 \n\nenum_field\x18\n \x01(\x0e\x32\x0c.models.Enum\x12\x33\n\x0ftimestamp_field\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\nuuid_field\x18\x0c \x01(\t\x12\x1d\n\x15repeated_uint32_field\x18\r \x03(\r\x12\x1d\n\x15repeated_string_field\x18\x0e \x03(\t\x12\x1d\n\x15repeated_double_field\x18\x0f \x03(\x01\x12L\n\x1amap_string_to_string_field\x18\x10 \x03(\x0b\x32(.models.Root.MapStringToStringFieldEntry\x12,\n\rmessage_field\x18\x11 \x01(\x0b\x32\x15.models.Root.Embedded\x12\x35\n\x16repeated_message_field\x18\x12 \x03(\x0b\x32\x15.models.Root.Embedded\x12N\n\x1bmap_string_to_message_field\x18\x13 \x03(\x0b\x32).models.Root.MapStringToMessageFieldEntry\x12\x35\n\x11list_field_option\x18\x14 \x01(\x0b\x32\x18.models.Root.ListWrapperH\x00\x12\x33\n\x10map_field_option\x18\x15 \x01(\x0b\x32\x17.models.Root.MapWrapperH\x00\x12\x15\n\rforeign_field\x18\x1e \x03(\x05\x12\x31\n\x0binlineField\x18( \x01(\x0b\x32\x1c.models.Root.InlineEmbedding\x1a=\n\x1bMapStringToStringFieldEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aU\n\x1cMapStringToMessageFieldEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12$\n\x05value\x18\x02 \x01(\x0b\x32\x15.models.Root.Embedded:\x02\x38\x01\x1a\x18\n\x08\x45mbedded\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x05\x1a\x1b\n\x0bListWrapper\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\t\x1aj\n\nMapWrapper\x12/\n\x04\x64\x61ta\x18\x01 \x03(\x0b\x32!.models.Root.MapWrapper.DataEntry\x1a+\n\tDataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x89\x01\n\x0fInlineEmbedding\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\x12G\n\x11\x64oublyNestedField\x18\x02 \x01(\x0b\x32,.models.Root.InlineEmbedding.NestedEmbedding\x1a\x1f\n\x0fNestedEmbedding\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\tB\t\n\x07options*3\n\x04\x45num\x12\x0f\n\x0b\x45num_NOTSET\x10\x00\x12\x0c\n\x08\x45num_ONE\x10\x01\x12\x0c\n\x08\x45num_TWO\x10\x02\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -46,8 +46,8 @@ _ENUM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1863,
-  serialized_end=1914,
+  serialized_start=1900,
+  serialized_end=1951,
 )
 _sym_db.RegisterEnumDescriptor(_ENUM)
 
@@ -82,8 +82,8 @@ _MAIN_OPTIONS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=506,
-  serialized_end=555,
+  serialized_start=543,
+  serialized_end=592,
 )
 _sym_db.RegisterEnumDescriptor(_MAIN_OPTIONS)
 
@@ -109,6 +109,13 @@ _DEEPERRELATION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='relations', full_name='models.DeeperRelation.relations', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -122,7 +129,7 @@ _DEEPERRELATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=57,
-  serialized_end=98,
+  serialized_end=135,
 )
 
 
@@ -166,8 +173,8 @@ _RELATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=100,
-  serialized_end=184,
+  serialized_start=137,
+  serialized_end=221,
 )
 
 
@@ -204,8 +211,8 @@ _M2MRELATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=186,
-  serialized_end=224,
+  serialized_start=223,
+  serialized_end=261,
 )
 
 
@@ -292,8 +299,8 @@ _MAIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=227,
-  serialized_end=555,
+  serialized_start=264,
+  serialized_end=592,
 )
 
 
@@ -330,8 +337,8 @@ _ROOT_MAPSTRINGTOSTRINGFIELDENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1399,
-  serialized_end=1460,
+  serialized_start=1436,
+  serialized_end=1497,
 )
 
 _ROOT_MAPSTRINGTOMESSAGEFIELDENTRY = _descriptor.Descriptor(
@@ -367,8 +374,8 @@ _ROOT_MAPSTRINGTOMESSAGEFIELDENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1462,
-  serialized_end=1547,
+  serialized_start=1499,
+  serialized_end=1584,
 )
 
 _ROOT_EMBEDDED = _descriptor.Descriptor(
@@ -397,8 +404,8 @@ _ROOT_EMBEDDED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1549,
-  serialized_end=1573,
+  serialized_start=1586,
+  serialized_end=1610,
 )
 
 _ROOT_LISTWRAPPER = _descriptor.Descriptor(
@@ -427,8 +434,8 @@ _ROOT_LISTWRAPPER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1575,
-  serialized_end=1602,
+  serialized_start=1612,
+  serialized_end=1639,
 )
 
 _ROOT_MAPWRAPPER_DATAENTRY = _descriptor.Descriptor(
@@ -464,8 +471,8 @@ _ROOT_MAPWRAPPER_DATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1667,
-  serialized_end=1710,
+  serialized_start=1704,
+  serialized_end=1747,
 )
 
 _ROOT_MAPWRAPPER = _descriptor.Descriptor(
@@ -494,8 +501,8 @@ _ROOT_MAPWRAPPER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1604,
-  serialized_end=1710,
+  serialized_start=1641,
+  serialized_end=1747,
 )
 
 _ROOT_INLINEEMBEDDING_NESTEDEMBEDDING = _descriptor.Descriptor(
@@ -524,8 +531,8 @@ _ROOT_INLINEEMBEDDING_NESTEDEMBEDDING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1819,
-  serialized_end=1850,
+  serialized_start=1856,
+  serialized_end=1887,
 )
 
 _ROOT_INLINEEMBEDDING = _descriptor.Descriptor(
@@ -561,8 +568,8 @@ _ROOT_INLINEEMBEDDING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1713,
-  serialized_end=1850,
+  serialized_start=1750,
+  serialized_end=1887,
 )
 
 _ROOT = _descriptor.Descriptor(
@@ -748,10 +755,11 @@ _ROOT = _descriptor.Descriptor(
       name='options', full_name='models.Root.options',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=558,
-  serialized_end=1861,
+  serialized_start=595,
+  serialized_end=1898,
 )
 
+_DEEPERRELATION.fields_by_name['relations'].message_type = _RELATION
 _RELATION.fields_by_name['deeper_relation'].message_type = _DEEPERRELATION
 _MAIN.fields_by_name['choices_field'].enum_type = _MAIN_OPTIONS
 _MAIN.fields_by_name['fk_field'].message_type = _RELATION

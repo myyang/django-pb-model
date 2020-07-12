@@ -254,7 +254,29 @@ With above settings, pb_model would recursively serialize and de-serialize betwe
    >>> m2.fk.id
    1
 
+Note that one can specify a reversed relation by assign related_name:
 
+.. code:: python
+  class Relation(ProtoBufMixin, models.Model):
+    pb_model = models_pb2.Relation
+
+    num = models.IntegerField(default=0)
+    deeper_relation = models.ForeignKey(DeeperRelation, 
+                                        on_delete=models.DO_NOTHING,
+                                        blank=True,
+                                        null=True,
+                                        related_name='relations')
+
+When the related proto contains the same field of this reversed relation:
+
+.. code:: Protobuf
+  message DeeperRelation {
+    int32 id = 1;
+    int32 num = 2;
+    repeated Relation relations = 3;
+  } 
+
+we will skip serializes the relations field.
 
 Many-to-Many field
 ~~~~~~~~~~~~~~~~~~

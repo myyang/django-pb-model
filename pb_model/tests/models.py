@@ -21,7 +21,8 @@ class Relation(ProtoBufMixin, models.Model):
     deeper_relation = models.ForeignKey(DeeperRelation, 
                                         on_delete=models.DO_NOTHING,
                                         blank=True,
-                                        null=True)
+                                        null=True,
+                                        related_name='relations')
 
 
 class M2MRelation(ProtoBufMixin, models.Model):

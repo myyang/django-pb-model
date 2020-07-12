@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 message DeeperRelation {
   int32 id = 1;
   int32 num = 2;
+  repeated Relation relations = 3;
 }
 
 // Relation model for testing
