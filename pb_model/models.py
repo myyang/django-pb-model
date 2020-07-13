@@ -5,6 +5,7 @@ import logging
 import six
 
 from django.db import models
+from django.db.models.fields.reverse_related import ManyToOneRel
 from django.conf import settings
 
 from google.protobuf.descriptor import FieldDescriptor
@@ -292,6 +293,11 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         :returns: None
 
         """
+        if isinstance(dj_field_type, ManyToOneRel):
+            LOGGER.debug(
+                "Django Relation field '{}' is reverse related, skipping".format(
+                pb_field.name))
+            return
         if depth is None or depth > 0:
             LOGGER.debug(
                 "Django Relation field '{}', recursively serializing".format(

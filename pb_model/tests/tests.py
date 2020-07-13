@@ -286,3 +286,12 @@ class ProtoBufConvertingTest(TestCase):
             msg="{}(src) == {}(target)".format(
                 cap_1_main_proto.fk_field.deeper_relation.num, 
                 deepter_relation_item.num))
+
+    def test_reverse_relation(self):
+        deeper_relation_item = models.DeeperRelation.objects.create(num=2)
+        relation_item1 = models.Relation.objects.create(
+            num=1, deeper_relation=deeper_relation_item)
+        relation_item2 = models.Relation.objects.create(
+            num=2, deeper_relation=deeper_relation_item)
+
+        test_proto = deeper_relation_item.to_pb() 
