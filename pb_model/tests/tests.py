@@ -74,7 +74,7 @@ class ProtoBufConvertingTest(TestCase):
                 main_item.m2m_field.order_by('id').values_list('id', flat=True),
                 main_item2.m2m_field.order_by('id').values_list('id', flat=True))
         )
-    
+
         main_item2.save()
         main_item2 = models.Main.objects.get()
         assert main_item.to_pb() == main_item2.to_pb()
@@ -127,6 +127,15 @@ class ProtoBufConvertingTest(TestCase):
                         third=pb_value[2]
                     ))
 
+        test_uuid = uuid.UUID('acf9d4c5-335c-4ad7-9e60-32e7306ea7c0')
+
+        def _test_uuid_to_pb(pb_obj, pb_field, dj_field_value):
+            # always set to test_uuid at test
+            setattr(pb_obj, pb_field.name, test_uuid.hex)
+
+        def _test_uuid_from_pb(instance, dj_field_name, pb_field, pb_value):
+            setattr(instance, dj_field_name, uuid.UUID(pb_value))
+
         # This is a relation type that's not ProtoBuf enabled
         class NativeRelation(dj_models.Model):
             first = dj_models.IntegerField()
@@ -138,17 +147,25 @@ class ProtoBufConvertingTest(TestCase):
             pb_model = models_pb2.Root
             pb_2_dj_fields = ['foreign_field']
             pb_2_dj_field_serializers = {
-                'foreign_field': (serializer, deserializer)
+                'foreign_field': (serializer, deserializer),
+                dj_models.UUIDField: (_test_uuid_to_pb, _test_uuid_from_pb),
             }
             foreign_field = dj_models.ForeignKey(NativeRelation, on_delete=dj_models.DO_NOTHING)
+            uuid_field = dj_models.UUIDField()
 
-        _in = Model(foreign_field=NativeRelation(first=123, second=456, third=789))
+        _in = Model(
+            foreign_field=NativeRelation(first=123, second=456, third=789),
+            uuid_field=uuid.uuid4(),
+        )
 
         out = Model().from_pb(_in.to_pb())
 
         assert out.foreign_field.first == 123
         assert out.foreign_field.second == 456
         assert out.foreign_field.third == 789
+
+        assert _in.uuid_field != test_uuid
+        assert out.uuid_field == test_uuid
 
 
     def test_auto_fields(self):
@@ -223,68 +240,68 @@ class ProtoBufConvertingTest(TestCase):
         self.assertEqual(unlimited_main_proto.fk_field.num, relation_item.num,
                          msg="{}(src) != {}(target)".format(
                          unlimited_main_proto.fk_field.num, relation_item.num))
-        self.assertEqual(unlimited_main_proto.fk_field.deeper_relation.id, 
+        self.assertEqual(unlimited_main_proto.fk_field.deeper_relation.id,
                          deepter_relation_item.id,
                          msg="{}(src) != {}(target)".format(
-                         unlimited_main_proto.fk_field.deeper_relation.id, 
+                         unlimited_main_proto.fk_field.deeper_relation.id,
                          deepter_relation_item.id))
-        self.assertEqual(unlimited_main_proto.fk_field.deeper_relation.num, 
+        self.assertEqual(unlimited_main_proto.fk_field.deeper_relation.num,
                          deepter_relation_item.num,
                          msg="{}(src) != {}(target)".format(
-                         unlimited_main_proto.fk_field.deeper_relation.num, 
+                         unlimited_main_proto.fk_field.deeper_relation.num,
                          deepter_relation_item.num))
 
 
         # Verify no relation is converted when depth = 0.
         cap_0_main_proto = main_item.to_pb(depth=0)
         # proto3 does not support `hasField`, check value not equal instead.
-        self.assertNotEqual(cap_0_main_proto.fk_field.id, 
+        self.assertNotEqual(cap_0_main_proto.fk_field.id,
                             relation_item.id,
                             msg="{}(src) == {}(target)".format(
-                                cap_0_main_proto.fk_field.id, 
+                                cap_0_main_proto.fk_field.id,
                                 relation_item.id))
-        self.assertNotEqual(cap_0_main_proto.fk_field.num, 
+        self.assertNotEqual(cap_0_main_proto.fk_field.num,
                             relation_item.num,
                             msg="{}(src) == {}(target)".format(
-                                cap_0_main_proto.fk_field.num, 
+                                cap_0_main_proto.fk_field.num,
                                 relation_item.num))
         self.assertNotEqual(
-            cap_0_main_proto.fk_field.deeper_relation.id, 
+            cap_0_main_proto.fk_field.deeper_relation.id,
             deepter_relation_item.id,
             msg="{}(src) == {}(target)".format(
-                cap_0_main_proto.fk_field.deeper_relation.id, 
+                cap_0_main_proto.fk_field.deeper_relation.id,
                 deepter_relation_item.id))
         self.assertNotEqual(
-            cap_0_main_proto.fk_field.deeper_relation.num, 
+            cap_0_main_proto.fk_field.deeper_relation.num,
             deepter_relation_item.num,
             msg="{}(src) == {}(target)".format(
-                cap_0_main_proto.fk_field.deeper_relation.num, 
+                cap_0_main_proto.fk_field.deeper_relation.num,
                 deepter_relation_item.num))
 
         # Verify only 1 level relation is converted when depth = 1.
         cap_1_main_proto = main_item.to_pb(depth=1)
         # proto3 does not support `hasField`, check value not equal instead.
-        self.assertEqual(cap_1_main_proto.fk_field.id, 
+        self.assertEqual(cap_1_main_proto.fk_field.id,
                          relation_item.id,
                          msg="{}(src) != {}(target)".format(
-                            cap_1_main_proto.fk_field.id, 
+                            cap_1_main_proto.fk_field.id,
                             relation_item.id))
-        self.assertEqual(cap_1_main_proto.fk_field.num, 
+        self.assertEqual(cap_1_main_proto.fk_field.num,
                          relation_item.num,
                          msg="{}(src) != {}(target)".format(
-                            cap_1_main_proto.fk_field.num, 
+                            cap_1_main_proto.fk_field.num,
                             relation_item.num))
         self.assertNotEqual(
-            cap_1_main_proto.fk_field.deeper_relation.id, 
+            cap_1_main_proto.fk_field.deeper_relation.id,
             deepter_relation_item.id,
             msg="{}(src) == {}(target)".format(
-                cap_1_main_proto.fk_field.deeper_relation.id, 
+                cap_1_main_proto.fk_field.deeper_relation.id,
                 deepter_relation_item.id))
         self.assertNotEqual(
-            cap_1_main_proto.fk_field.deeper_relation.num, 
+            cap_1_main_proto.fk_field.deeper_relation.num,
             deepter_relation_item.num,
             msg="{}(src) == {}(target)".format(
-                cap_1_main_proto.fk_field.deeper_relation.num, 
+                cap_1_main_proto.fk_field.deeper_relation.num,
                 deepter_relation_item.num))
 
     def test_reverse_relation(self):
@@ -294,4 +311,4 @@ class ProtoBufConvertingTest(TestCase):
         relation_item2 = models.Relation.objects.create(
             num=2, deeper_relation=deeper_relation_item)
 
-        test_proto = deeper_relation_item.to_pb() 
+        test_proto = deeper_relation_item.to_pb()

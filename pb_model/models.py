@@ -26,10 +26,10 @@ class DjangoPBModelError(Exception):
 class Meta(type(models.Model)):
     def __init__(self, name, bases, attrs):
         super(Meta, self).__init__(name, bases, attrs)
-        self.pb_2_dj_field_serializers = self.pb_2_dj_field_serializers.copy()
+        self.pb_2_dj_field_serializers = self._pb_2_dj_default_field_serializers.copy()
         self.pb_2_dj_field_serializers.update(attrs.get('pb_2_dj_field_serializers', {}))
 
-        self.pb_auto_field_type_mapping = self.pb_auto_field_type_mapping.copy()
+        self.pb_auto_field_type_mapping = self._pb_auto_field_type_mapping.copy()
         self.pb_auto_field_type_mapping.update(attrs.get('pb_auto_field_type_mapping', {}))
 
         if self.pb_model is not None:
@@ -168,13 +168,21 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
     pb_model = None
     pb_2_dj_fields = []  # list of pb field names that are mapped, special case pb_2_dj_fields = '__all__'
     pb_2_dj_field_map = {}  # pb field in keys, dj field in value
-    pb_2_dj_field_serializers = {
+
+    # defaults for models.DateTimeField and models.UUIDField
+    # these serializers would be overwrited by definition in pb_2_dj_field_serializers if any
+    _pb_2_dj_default_field_serializers = {
         models.DateTimeField: (fields._datetimefield_to_pb,
                                fields._datetimefield_from_pb),
         models.UUIDField: (fields._uuid_to_pb,
                            fields._uuid_from_pb),
-    }  # dj field in key, serializer function pairs in value
-    pb_auto_field_type_mapping = {
+    }
+
+    pb_2_dj_field_serializers = {} # dj field in key, serializer function pairs in value
+
+    # auto gen field defaults
+    # mapping would be overwrited by definition in pb_auto_field_type_mapping if any
+    _pb_auto_field_type_mapping = {
         FieldDescriptor.TYPE_DOUBLE: models.FloatField,
         FieldDescriptor.TYPE_FLOAT: models.FloatField,
         FieldDescriptor.TYPE_INT64: models.BigIntegerField,
@@ -203,6 +211,8 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
     schema migration or any model changes.
     """
 
+    pb_auto_field_type_mapping = {}
+
     default_serializers = (fields._defaultfield_to_pb, fields._defaultfield_from_pb)
 
     def __init__(self, *args, **kwargs):
@@ -220,7 +230,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         kwargs['force_insert'] = False
         super(ProtoBufMixin, self).save(*args, **kwargs)
 
-    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields, 
+    def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields,
                _dj_pb_field_map, depth):
         _dj_f_name = _dj_pb_field_map.get(_dj_field_name, _dj_field_name)
         if _dj_f_name not in _dj_fields:
@@ -246,13 +256,13 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
             raise DjangoPBModelError(
                 "Can't serialize Model({})'s field: {}. Err: {}".format(_dj_f_name, self._meta.model, e))
 
-    def _to_proto_recursively(self, _pb_obj, _pb_dj_field_map, _dj_fields, 
+    def _to_proto_recursively(self, _pb_obj, _pb_dj_field_map, _dj_fields,
                               depth):
         for _pb_field in _pb_obj.DESCRIPTOR.fields:
             _dj_field_name = _pb_dj_field_map.get(_pb_field.name, _pb_field.name)
             if isinstance(_dj_field_name, dict):
                 self._to_proto_recursively(getattr(_pb_obj, _pb_field.name),
-                                           _dj_field_name, _dj_fields, 
+                                           _dj_field_name, _dj_fields,
                                            depth=depth)
             else:
                 _field = _pb_obj.DESCRIPTOR.fields_by_name[_pb_field.name]
@@ -280,7 +290,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
             _pb_obj.DESCRIPTOR.full_name, _pb_obj))
         return _pb_obj
 
-    def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type, 
+    def _relation_to_protobuf(self, pb_obj, pb_field, dj_field_type,
                               dj_field_value, depth):
         """Handling relation to protobuf
 
