@@ -44,9 +44,12 @@ Table of Content
 
     * `Limit Foreign key or Many-to-Many field conversion depth`_
     * `Datetime Field`_
-    * `Custom Fields`_
 
       * Timezone_
+
+    * `Custom Fields`_
+
+      * `Built-Ins`_
 
 Compatibility
 -------------
@@ -68,7 +71,7 @@ Install
 -------
 
 1. pip install
-    
+
 .. code:: shell
 
     pip install django-pb-model
@@ -262,7 +265,7 @@ Note that one can specify a reversed relation by assign related_name:
     pb_model = models_pb2.Relation
 
     num = models.IntegerField(default=0)
-    deeper_relation = models.ForeignKey(DeeperRelation, 
+    deeper_relation = models.ForeignKey(DeeperRelation,
                                         on_delete=models.DO_NOTHING,
                                         blank=True,
                                         null=True,
@@ -276,14 +279,14 @@ When the related proto contains the same field of this reversed relation:
     int32 id = 1;
     int32 num = 2;
     repeated Relation relations = 3;
-  } 
+  }
 
 we will skip serializes the relations field.
 
 Many-to-Many field
 ~~~~~~~~~~~~~~~~~~
 
-M2M field is a QuerySet Relation in Django. 
+M2M field is a QuerySet Relation in Django.
 By default, we assume target message field is "repeated" nested message, ex:
 
 .. code:: protobuf
@@ -300,7 +303,7 @@ By default, we assume target message field is "repeated" nested message, ex:
 
 Django model would be:
 
-.. code:: python 
+.. code:: python
 
    class M2M(models.Model):
        pass
@@ -345,8 +348,8 @@ Also, you should write your converting policy if m2m is not nested repeated mess
 Limit Foreign key or Many-to-Many field conversion depth
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By default, when to_pb() method is called, all related message will be 
-also converted recursively. 
+By default, when to_pb() method is called, all related message will be
+also converted recursively.
 
 For example:
 
@@ -387,24 +390,25 @@ And code:
   }
 
 
-This may not be the behavior wanted. The depth parameter can be used to limit 
+This may not be the behavior wanted. The depth parameter can be used to limit
 the depth of these conversion.
 
-If the depth is set to 0, no related field will be converted, the fk_field in 
-Main message will left unset. 
+If the depth is set to 0, no related field will be converted, the fk_field in
+Main message will left unset.
 
 If the depth is set to any positive number, the level of related field will be
 limited by the specified number. For example, if depth is set to 1, the fk_field
-will contain the related Relation message, however the deeper_relation field 
+will contain the related Relation message, however the deeper_relation field
 of the fk_field message will be unset.
 
 Datetime Field
 ~~~~~~~~~~~~~~
 
-Datetime is a special singular value.
+Datetime is a special singular value and able to convert between
+``datetime.datetime`` (Python) and ``google.protobuf.timestamp_pb2.Timestamp`` (ProboBuf)
+through built-in datetime serializers. Check `Custom Fields`_ if you want other coversion rules.
 
-We currently convert between ``datetime.datetime`` (Python) and ``google.protobuf.timestamp_pb2.Timestamp`` (ProboBuf),
-for example:
+Default conversion works as following example:
 
 ProtoBuf message:
 
@@ -437,6 +441,12 @@ Django Model:
    nanos: 282705000
    }
 
+
+Timezone
+""""""""
+
+Note that if you use ``USE_TZ`` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
+And converted to default timezone in django according to settings.
 
 Custom Fields
 ~~~~~~~~~~~~~
@@ -474,9 +484,18 @@ Django Model:
 
         json_field = models.JSONField()
 
+Built-Ins
+"""""""""
 
-Timezone
-""""""""
+There are 2 built-in serializers for types: ``django.models.UUIDField`` and  ``django.models.DateTimeField``.
 
-Note that if you use ``USE_TZ`` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
-And converted to default timezone in django according to settings.
+.. code:: python
+
+    _pb_2_dj_default_field_serializers = {
+         models.DateTimeField: (fields._datetimefield_to_pb,
+                                fields._datetimefield_from_pb),
+         models.UUIDField: (fields._uuid_to_pb,
+                            fields._uuid_from_pb),
+	}
+
+And is able to be override by declaration in ``pb_2_dj_field_serializers``.
