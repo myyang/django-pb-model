@@ -479,10 +479,10 @@ Django Model:
         pb_model = models_pb2.WithJSONBlob
 
         pb_2_dj_field_serializers = {
-            'JSONField': (json_serializer, json_deserializer),
+            'json_blob': (json_serializer, json_deserializer),
         }
 
-        json_field = models.JSONField()
+        json_blob = JSONField()
 
 Built-Ins
 """""""""
