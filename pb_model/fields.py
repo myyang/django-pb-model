@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from google.protobuf.descriptor import FieldDescriptor
-
+from google.protobuf.any_pb2 import Any
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ PB_FIELD_TYPE_MAP = FieldDescriptor.MAX_TYPE + 3
 PB_FIELD_TYPE_MESSAGE = FieldDescriptor.MAX_TYPE + 4
 PB_FIELD_TYPE_REPEATED_MESSAGE = FieldDescriptor.MAX_TYPE + 5
 PB_FIELD_TYPE_MESSAGE_MAP = FieldDescriptor.MAX_TYPE + 6
+PB_FIELD_TYPE_MESSAGE_ANY = FieldDescriptor.MAX_TYPE + 7
 
 
 def _defaultfield_to_pb(pb_obj, pb_field, dj_field_value):
@@ -101,6 +102,32 @@ class ProtoBufFieldMixin(object):
     @staticmethod
     def from_pb(instance, dj_field_name, pb_field, pb_value):
         raise NotImplementedError()
+
+
+class ProtoBufAnyField(models.BinaryField, ProtoBufFieldMixin):
+    @staticmethod
+    def to_pb(pb_obj, pb_field, dj_field_value):
+        getattr(pb_obj, pb_field.name).CopyFrom(dj_field_value)
+
+    @staticmethod
+    def from_pb(instance, dj_field_name, pb_field, pb_value):
+        setattr(instance, dj_field_name, pb_value)
+
+    def pre_save(self, model_instance, add):
+        value = getattr(model_instance, self.name)
+
+        if not isinstance(value, Any):
+            raise ValueError("Field it's not from type: google.protobuf.any_pb2.Any")
+
+        return value.SerializeToString()
+
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+
+        _any = Any()
+        _any.ParseFromString(value)
+        return _any
 
 
 class JSONField(models.TextField):
