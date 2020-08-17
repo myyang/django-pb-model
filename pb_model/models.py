@@ -61,6 +61,8 @@ class Meta(type(models.Model)):
         elif Meta._is_message_field(message_field):
             if message_field.message_type.name == 'Timestamp':
                 return self._create_timestamp_field()
+            elif message_field.message_type.name == 'Any':
+                return self._create_protobuf_any_field()
             else:
                 return self._create_message_field(message_field.containing_type.name, message_field.message_type.name,
                                                   message_field.name)
@@ -125,6 +127,10 @@ class Meta(type(models.Model)):
         field_type = self.pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_REPEATED]
         return field_type()
 
+    def _create_protobuf_any_field(self):
+        field_type = self.pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE_ANY]
+        return field_type()
+
     def _create_message_field(self, own_type, related_type, field_name):
         field_type = self.pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE]
         return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name),
@@ -151,7 +157,6 @@ class Meta(type(models.Model)):
         """
         field_type = self.pb_auto_field_type_mapping[fields.PB_FIELD_TYPE_MESSAGE_MAP]
         return field_type(to=related_type, related_name='%s_%s' % (own_type, field_name))
-
 
 class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
     """This is mixin for model.Model.
@@ -205,6 +210,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
         fields.PB_FIELD_TYPE_MESSAGE: models.ForeignKey,
         fields.PB_FIELD_TYPE_REPEATED_MESSAGE: fields.RepeatedMessageField,
         fields.PB_FIELD_TYPE_MESSAGE_MAP: fields.MessageMapField,
+        fields.PB_FIELD_TYPE_MESSAGE_ANY: fields.ProtoBufAnyField,
     }  # pb field type in key, dj field type in value
     """
     {ProtoBuf-field-name: Django-field-name} key-value pair mapping to handle
