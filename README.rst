@@ -46,7 +46,7 @@ Table of Content
     * `Datetime Field`_
 
       * Timezone_
-
+    * `Any`_
     * `Custom Fields`_
 
       * `Built-Ins`_
@@ -183,6 +183,7 @@ Following protobuf field types are supported:
 * uint32, int32, uint64, int64, float, double, bool, Enum
 * string, bytes
 * google.protobuf.Timestamp
+* google.protobuf.Any
 * Messages
 * oneof fields
 * repeated scalar and Message fields
@@ -447,6 +448,39 @@ Timezone
 
 Note that if you use ``USE_TZ`` in Django settings, all datetime would be converted to UTC timezone while storing in protobuf message.
 And converted to default timezone in django according to settings.
+
+Any
+~~~~~~~~~~~~~~
+
+When using `Any` as a field in a message, the field is by default kept as Any in your Django model and you may save it like it is any other Django Field.
+Example on using `Any`:
+
+.. code:: protobuf
+
+    package models;
+
+    import "google/protobuf/any.proto";
+
+    message WithAnyMessage {
+        google.protobuf.Any any_field = 1;
+    }
+
+.. code:: python
+
+    class WithAny(ProtoBufMixin, models.Model):
+        pb_model = models_pb2.WithAny
+
+Then when you're using your Django:
+
+.. code:: python
+
+    >>> with_any_message = WithAnyMessage(any_field=Any())
+    >>> WithAny().from_pb(with_any_message).save()
+
+    # See that the we successfully saved Any as a Django field.
+    >>> any_field = WithAny.objects.last().any_field
+    >>> type(any_field)
+    google.protobuf.any_pb2.Any
 
 Custom Fields
 ~~~~~~~~~~~~~
