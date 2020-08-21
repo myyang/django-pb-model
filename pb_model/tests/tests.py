@@ -4,6 +4,7 @@ import uuid
 from django.test import TestCase
 from django.db import models as dj_models
 
+from google.protobuf.any_pb2 import Any
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf.descriptor import FieldDescriptor
 
@@ -171,6 +172,10 @@ class ProtoBufConvertingTest(TestCase):
     def test_auto_fields(self):
         timestamp = Timestamp()
         timestamp.FromDatetime(datetime.datetime.now())
+
+        _any = Any()
+        _any.Pack(timestamp)
+
         pb_object = models_pb2.Root(
             uint32_field=1234,
             uint64_field=123,
@@ -181,7 +186,7 @@ class ProtoBufConvertingTest(TestCase):
             bytes_field=b'123',
             bool_field=True,
             uuid_field=str(uuid.uuid4()),
-
+            any_field=_any,
             enum_field=1,
             timestamp_field=timestamp,
             repeated_uint32_field=[1, 2, 3],
@@ -217,6 +222,7 @@ class ProtoBufConvertingTest(TestCase):
         assert [o.data for o in dj_object_from_db.repeated_message_field] == [123, 456, 789]
         assert {k: o.data for k, o in dj_object_from_db.map_string_to_message_field.items()} == {'qwe': 123, 'asd': 456}
         assert dj_object_from_db.uint32_field_renamed == pb_object.uint32_field
+        assert dj_object_from_db.any_field == _any
         result = dj_object_from_db.to_pb()
         assert pb_object == result
 
