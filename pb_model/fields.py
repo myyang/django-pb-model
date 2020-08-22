@@ -121,7 +121,7 @@ class ProtoBufAnyField(models.BinaryField, ProtoBufFieldMixin):
 
         return value.SerializeToString()
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(self, value, expression, connection, context=None):
         if value is None:
             return value
 
