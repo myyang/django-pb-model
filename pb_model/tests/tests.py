@@ -226,6 +226,15 @@ class ProtoBufConvertingTest(TestCase):
         result = dj_object_from_db.to_pb()
         assert pb_object == result
 
+        # test proxy model with auto field
+        proxy_object_from_db = models.Proxy.objects.get()
+        assert [o.data for o in proxy_object_from_db.repeated_message_field] == [123, 456, 789]
+        assert {k: o.data for k, o in proxy_object_from_db.map_string_to_message_field.items()} == {'qwe': 123, 'asd': 456}
+        assert proxy_object_from_db.uint32_field_renamed == pb_object.uint32_field
+        assert proxy_object_from_db.any_field == _any
+        result = proxy_object_from_db.to_pb()
+        assert pb_object == result
+
     def test_relation_depth_limit(self):
         deepter_relation_item = models.DeeperRelation.objects.create(num=2)
         relation_item = models.Relation.objects.create(

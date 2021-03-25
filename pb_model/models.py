@@ -32,6 +32,11 @@ class Meta(type(models.Model)):
         self.pb_auto_field_type_mapping = self._pb_auto_field_type_mapping.copy()
         self.pb_auto_field_type_mapping.update(attrs.get('pb_auto_field_type_mapping', {}))
 
+        if self._meta.proxy:
+            # prevent duplicated field in proxy model
+            # ref: https://github.com/myyang/django-pb-model/issues/29
+            return
+
         if self.pb_model is not None:
             if self.pb_2_dj_fields == '__all__':
                 self.pb_2_dj_fields = self.pb_model.DESCRIPTOR.fields_by_name.keys()

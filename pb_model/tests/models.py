@@ -84,3 +84,8 @@ class Root(ProtoBufMixin, models.Model):
     uuid_field = models.UUIDField(null=True)
     inline_field = models.CharField(max_length=10, null=True)
     second_inline_field = models.CharField(max_length=10, null=True)
+
+
+class Proxy(Root):
+    class Meta:
+        proxy = True
