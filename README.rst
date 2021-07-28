@@ -384,7 +384,7 @@ And code:
     id: 1
     fk_field {
       id: 1,
-      deeper_ralation {
+      deeper_relation {
         id: 1
       }
     }
