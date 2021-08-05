@@ -92,7 +92,7 @@ Install
 
     python manage.py makemigrations
     python manage.py migrate
-    python manage.py collectstatic -l
+    python manage.py collectstatic --link
 
 4. Start hacking or using app.
 
@@ -384,7 +384,7 @@ And code:
     id: 1
     fk_field {
       id: 1,
-      deeper_ralation {
+      deeper_relation {
         id: 1
       }
     }
