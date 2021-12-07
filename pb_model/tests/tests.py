@@ -80,6 +80,22 @@ class ProtoBufConvertingTest(TestCase):
         main_item2 = models.Main.objects.get()
         assert main_item.to_pb() == main_item2.to_pb()
 
+    def test_single_save_on_simple_model(self):
+        # A simple objects without a m2m relation, needs only a single
+        # save call.
+        relation_item = models.Relation.objects.create(num=1)
+        pb_object = models_pb2.Main(
+            string_field='Hello world', integer_field=1,
+            float_field=3.14159, bool_field=True,
+            choices_field=models.Main.OPT2,
+            fk_field=relation_item.to_pb()
+        )
+        dj_object = models.Main()
+        dj_object.from_pb(pb_object)
+
+        with self.assertNumQueries(1):
+            dj_object.save()
+
     def test_inheritance(self):
         class Parent(ProtoBufMixin, dj_models.Model):
             pb_model = models_pb2.Root
