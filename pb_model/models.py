@@ -235,11 +235,16 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
 
     def save(self, *args, **kwargs):
         super(ProtoBufMixin, self).save(*args, **kwargs)
+        saved_m2m = False
         for m2m_field in self._meta.many_to_many:
             if issubclass(type(m2m_field), fields.ProtoBufFieldMixin):
                 m2m_field.save(self)
-        kwargs['force_insert'] = False
-        super(ProtoBufMixin, self).save(*args, **kwargs)
+                saved_m2m = True
+        if saved_m2m:
+            # When we have many-to-many relations, we must save again to
+            # persist the FKs filled in the referenced object.
+            kwargs['force_insert'] = False
+            super(ProtoBufMixin, self).save(*args, **kwargs)
 
     def _to_pb(self, _dj_field_name, _field, _pb_obj, _dj_fields,
                _dj_pb_field_map, depth):
