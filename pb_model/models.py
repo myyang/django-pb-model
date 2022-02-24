@@ -39,7 +39,8 @@ class Meta(type(models.Model)):
 
         if self.pb_model is not None:
             if self.pb_2_dj_fields == '__all__':
-                self.pb_2_dj_fields = self.pb_model.DESCRIPTOR.fields_by_name.keys()
+                all_fields = self.pb_model.DESCRIPTOR.fields_by_name.keys()
+                self.pb_2_dj_fields = [f for f in all_fields if f not in self.pb_2_dj_ignore_fields]
 
             for pb_field_name in self.pb_2_dj_fields:
                 pb_field_descriptor = self.pb_model.DESCRIPTOR.fields_by_name[pb_field_name]
@@ -177,6 +178,7 @@ class ProtoBufMixin(six.with_metaclass(Meta, models.Model)):
 
     pb_model = None
     pb_2_dj_fields = []  # list of pb field names that are mapped, special case pb_2_dj_fields = '__all__'
+    pb_2_dj_ignore_fields = []  # list to ignore fields if pb_2_dj_fields = '__all__'
     pb_2_dj_field_map = {}  # pb field in keys, dj field in value
 
     # defaults for models.DateTimeField and models.UUIDField
