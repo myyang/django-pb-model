@@ -343,3 +343,23 @@ class ProtoBufConvertingTest(TestCase):
             num=2, deeper_relation=deeper_relation_item)
 
         test_proto = deeper_relation_item.to_pb()
+
+    def test_ignore_fields(self):
+
+        fields_for_ignore = ['id', 'uint32_field']
+
+        class ParentAll(ProtoBufMixin, dj_models.Model):
+            pb_model = models_pb2.Root
+            pb_2_dj_fields = '__all__'
+
+        class ParentAllIgnore(ProtoBufMixin, dj_models.Model):
+            pb_model = models_pb2.Root
+            pb_2_dj_fields = '__all__'
+            pb_2_dj_ignore_fields = fields_for_ignore
+
+        parent_all_fields = [f.name for f in ParentAll._meta.get_fields()]
+        parent_ignore_fields = [f.name for f in ParentAllIgnore._meta.get_fields()]
+
+        assert len(parent_all_fields) > len(parent_ignore_fields)
+        assert set(fields_for_ignore).issubset(parent_all_fields)
+        assert not set(fields_for_ignore).issubset(parent_ignore_fields)
